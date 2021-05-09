@@ -68,7 +68,7 @@ io.of("/users").on("connection", async (socket) => {
 
     }
 
-    socket.on('newOrder', function (data) {
+    socket.on('newOrder',async function (data) {
         try {
             const order = await new Order(
                 {
