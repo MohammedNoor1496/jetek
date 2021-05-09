@@ -168,4 +168,4 @@ app.get('/*', function (req, res) {
     res.sendFile(path.join(__dirname + '/build/index.html'));
 });
 
-server.listen(process.env.PORT || 4000, "0.0.0.0", () => console.log(`server is running ${process.env.PORT} `));
+server.listen(process.env.PORT || 4000,  () => console.log(`server is running ${process.env.PORT} `));
