@@ -1,6 +1,7 @@
 const SpAdmin = require('../models/SpAdmin');
 var jwt = require('jsonwebtoken');
 const Prouduct = require('../models/Products');
+const spCatogarie = require('../models/SpCatogary');
 
 
 const createCp = async (req, res) => {
@@ -38,7 +39,7 @@ const createCp = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(403).json({ msg: error });
+        return res.status(500).json({ msg: error });
     }
 }
 
@@ -111,11 +112,24 @@ const editProduct = async (req, res) => {
 
 }
 
+const getCpTypes = async (req,res)=>{
+    const Sps = await spCatogarie.find({}, { 'createdAt': false, 'updatedAt': false, '__v': false });
+    if (Sps) {
+        res.status(200).json(Sps)
+
+    } else {
+        return res.status(400).json({ msg: "Sp  not found " });
+
+    }
+
+}
+
 
 module.exports = {
     createCp,
     // getAllAdmins,
     createProduct,
     deleteProdutc,
-    editProduct
+    editProduct,
+    getCpTypes
 }

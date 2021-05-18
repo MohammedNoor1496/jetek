@@ -326,10 +326,17 @@ const getSpTypes = async (req, res) => {
         // console.log(getUser);
         if (getUser) {
             const Sps = await spCatogarie.find({}, { 'createdAt': false, 'updatedAt': false, '__v': false });
-            res.status(200).json(Sps)
+            if (Sps) {
+                res.status(200).json(Sps)
+
+            } else {
+                return res.status(400).json({ msg: "Sp  not found " });
+
+            }
 
         } else {
-            return res.status(400).json({ msg: "Sp  not found " });
+            return res.status(400).json({ msg: "user not found" });
+
         }
 
     } catch {

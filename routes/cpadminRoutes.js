@@ -22,5 +22,6 @@ router.post('/createProduct', upload.single('pImage'), subAdminControler.createP
 // router.get('/getAdmins', adminAuth, adminController.getAllAdmins);
 router.post('/editProduct', subAdminControler.editProduct);
 router.post('/deleteProdutc', subAdminControler.deleteProdutc);
+router.get('/getCpTypes', subAdminControler.getCpTypes);
 
 module.exports = router;
