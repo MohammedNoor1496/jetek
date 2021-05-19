@@ -42,6 +42,11 @@ io.on('connection', (socket) => {
         console.log('message: ' + msg);
         userSocket.broadcast.emit("receive_message", data)
     });
+    socket.on('disconnect', function () {
+        console.log(socket.id);
+    });
+
+
 });
 
 const captins = io.of('/captins');
@@ -85,7 +90,7 @@ io.of("/users").on("connection", async (socket) => {
                 }
             ).save()
                 .then(() => {
-                    console.log("Session created ");
+                    console.log("Order created ");
                 })
 
         } catch (error) {
