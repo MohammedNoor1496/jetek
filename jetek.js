@@ -73,7 +73,7 @@ io.of("/users").on("connection", async (socket) => {
         try {
             const order = await new Order(
                 {
-                    user_Phone: userPhone,
+                    user_Phone: data.userPhone,
                     sell_point_id: data.sell_point_id,
                     products_id: data.products_id,
                     destination_long: data.destination_long,
