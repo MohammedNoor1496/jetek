@@ -49,6 +49,10 @@ const order = new Schema({
     paid: {
         type: Boolean
     }
+    ,distance:{
+        type: String,
+        require: true
+    }
 
 }, { timestamps: true });
 

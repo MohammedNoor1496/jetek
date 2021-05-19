@@ -22,6 +22,7 @@ const userRoutes = require('./routes/userRoutes');
 const captinRoutes = require('./routes/captinRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const subAdminRoutes = require('./routes/cpadminRoutes');
+const { sendVeriSms } = require('./services/sms');
 
 
 // stablish the connection with the dataBase 
@@ -42,11 +43,6 @@ io.on('connection', (socket) => {
         console.log('message: ' + msg);
         userSocket.broadcast.emit("receive_message", data)
     });
-    socket.on('disconnect', function () {
-        console.log(socket.id);
-    });
-
-
 });
 
 const captins = io.of('/captins');
@@ -87,10 +83,15 @@ io.of("/users").on("connection", async (socket) => {
                     fee: data.fee,
                     payment: data.payment,
                     paid: data.paid,
+                    distance:data.distance
                 }
             ).save()
                 .then(() => {
                     console.log("Order created ");
+                    io.of('/captins').emit('newRequsetDriver',{
+                        "Hello!":"new request"
+                    });
+                    io.to(socket.id).emit('searchingfordriver ', 'for your eyes only');
                 })
 
         } catch (error) {
@@ -167,6 +168,7 @@ app.use('/captin', captinRoutes);
 app.use('/admin', adminRoutes);
 // Sub Admin Routes
 app.use('/cpAdmin', subAdminRoutes);
+
 
 app.get('/*', function (req, res) {
 
