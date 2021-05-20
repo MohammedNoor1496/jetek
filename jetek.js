@@ -70,6 +70,8 @@ io.of("/users").on("connection", async (socket) => {
     }
 
     socket.on('newOrder',async function (data) {
+        console.log("new order event ");
+        console.log(data);
         try {
             const order = await new Order(
                 {
