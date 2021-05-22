@@ -93,7 +93,7 @@ io.of("/users").on("connection", async (socket) => {
                     io.of('/captins').emit('newRequsetDriver',{
                         "Hello!":"new request"
                     });
-                    io.to(socket.id).emit('searchingfordriver ', 'for your eyes only');
+                    io.to(socket.id).emit('searchingfordriver', 'for your eyes only');
                 })
 
         } catch (error) {
