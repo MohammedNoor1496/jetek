@@ -50,7 +50,7 @@ const order = new Schema({
         type: Boolean
     }
     ,distance:{
-        type: String,
+        type: Number,
         require: true
     }
 
