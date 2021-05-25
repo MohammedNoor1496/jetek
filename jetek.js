@@ -48,7 +48,8 @@ io.on('connection', (socket) => {
 const captins = io.of('/captins');
 
 io.of("/users").on("connection", async (socket) => {
-    console.log(socket.handshake.query['userId']);
+    // console.log(socket.handshake.query['userId']);
+    console.log("socket id before save "+socket.id);
 
     const userPhone = socket.handshake.query['userId'];
 
@@ -93,6 +94,7 @@ io.of("/users").on("connection", async (socket) => {
                     io.of('/captins').emit('newRequsetDriver',{
                         "Hello!":"new request"
                     });
+                    console.log("socket id after save "+socket.id);
                     io.to(socket.id).emit('searchingfordriver', 'for your eyes only');
                 })
 
