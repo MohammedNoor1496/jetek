@@ -95,7 +95,19 @@ io.of("/users").on("connection", async (socket) => {
                         "Hello!":"new request"
                     });
                     console.log("socket id after save "+socket.id);
-                    io.to(socket.id).emit('searchingfordriver', order);
+                    io.to(socket.id).emit('searchingfordriver',{
+                        user_Phone: data.userPhone,
+                        sell_point_id: data.sell_point_id,
+                        products_id: data.products_id,
+                        destination_long: data.destination_long,
+                        destination_lat: data.destination_lat,
+                        origin_long: data.origin_long,
+                        origin_lat: data.origin_lat,
+                        fee: data.fee,
+                        payment: data.payment,
+                        paid: data.paid,
+                        distance:data.distance
+                    });
                 })
 
         } catch (error) {
