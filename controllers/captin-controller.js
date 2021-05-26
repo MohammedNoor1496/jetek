@@ -1,5 +1,7 @@
 const Captin = require('../models/Captin');
 var jwt = require('jsonwebtoken');
+const session = require('../models/session');
+const Order = require('./models/Order');
 
 // this api is for captin register user mobile app 
 const createCaptin = async (req, res) => {
@@ -46,9 +48,30 @@ const createCaptin = async (req, res) => {
     }
 };
 
+const acceptAnOrder = async (req,res) =>{
+    console.log("acceptAnOrder");;
 
+    const { driver_phone, price, order_id } = req.body;
+
+    const acceptOrder = await Prouduct.findByIdAndUpdate({ id: order_id }, {
+        $set: {
+           captin_phone:driver_phone,
+            price, 
+        }
+    });
+    if (acceptOrder) {
+        res.status(200).json({ msg:"Order Accepted" })
+        const user_Phone = Order.findOne({ 'id': order_id }, {user_Phone :1})
+
+        const user_socket_id = session.findOne({ 'userPohne': user_Phone }, {userSocketIo:1})
+    } else {
+        res.status(400).send({ "status": false })
+
+    }
+}
 
 
 module.exports = {
-    createCaptin
+    createCaptin,
+    acceptAnOrder
 }

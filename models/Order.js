@@ -6,8 +6,9 @@ const order = new Schema({
         type: Number,
         require: true
     },
-    captin_id: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'Captin'
+    captin_phone: {
+        type: Number,
+        require: false
     },
     sell_point_id: {
         type: mongoose.Schema.Types.ObjectId, ref: 'SellPoint'
