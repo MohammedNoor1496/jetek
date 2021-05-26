@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-var io = require("socket.io")(server);
+var io = require('./socket').init(server);
 
 var compression = require('compression')
 const cors = require('cors');
@@ -48,8 +48,7 @@ io.on('connection', (socket) => {
 const captins = io.of('/captins');
 
 io.of("/users").on("connection", async (socket) => {
-    // console.log(socket.handshake.query['userId']);
-    console.log("socket id before save "+socket.id);
+    console.log(socket.handshake.query['userId']);
 
     const userPhone = socket.handshake.query['userId'];
 
@@ -92,32 +91,9 @@ io.of("/users").on("connection", async (socket) => {
                 .then(() => {
                     console.log("Order created ");
                     io.of('/captins').emit('newRequsetDriver',{
-                        user_Phone: data.userPhone,
-                        sell_point_id: data.sell_point_id,
-                        products_id: data.products_id,
-                        destination_long: data.destination_long,
-                        destination_lat: data.destination_lat,
-                        origin_long: data.origin_long,
-                        origin_lat: data.origin_lat,
-                        fee: data.fee,
-                        payment: data.payment,
-                        paid: data.paid,
-                        distance:data.distance
+                        "Hello!":"new request"
                     });
-                    console.log("socket id after save "+socket.id);
-                    io.of('/users').to(socket.id).emit('searchingfordriver',{
-                        user_Phone: data.userPhone,
-                        sell_point_id: data.sell_point_id,
-                        products_id: data.products_id,
-                        destination_long: data.destination_long,
-                        destination_lat: data.destination_lat,
-                        origin_long: data.origin_long,
-                        origin_lat: data.origin_lat,
-                        fee: data.fee,
-                        payment: data.payment,
-                        paid: data.paid,
-                        distance:data.distance
-                    });
+                    io.to(socket.id).emit('searchingfordriver', 'for your eyes only');
                 })
 
         } catch (error) {
