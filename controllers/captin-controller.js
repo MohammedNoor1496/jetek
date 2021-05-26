@@ -1,7 +1,7 @@
 const Captin = require('../models/Captin');
 var jwt = require('jsonwebtoken');
-const session = require('../models/session');
-const Order = require('./models/Order');
+const Session = require('../models/sessions');
+const Order = require('../models/Order');
 
 // this api is for captin register user mobile app 
 const createCaptin = async (req, res) => {
