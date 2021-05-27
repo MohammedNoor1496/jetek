@@ -1,77 +1,117 @@
-const Captin = require('../models/Captin');
-var jwt = require('jsonwebtoken');
-const Session = require('../models/sessions');
-const Order = require('../models/Order');
+const Captin = require("../models/Captin");
+var jwt = require("jsonwebtoken");
+const session = require("../models/sessions");
+const Order = require("../models/Order");
 
-// this api is for captin register user mobile app 
+var io = require("../socket");
+
+// this api is for captin register user mobile app
 const createCaptin = async (req, res) => {
-    console.log("create Captin function ");
-    console.log(req.body);
+  console.log("create Captin function ");
+  console.log(req.files['drivingLicense'][0]);
+  console.log(req.files['vehicleLicense'][0]);
+  const drivingLicensefileName = req.files['drivingLicense'][0].filename;
+  const vehicleLicensefileName = req.files['vehicleLicense'][0].filename;
+  const frontOfvehiclefileName = req.files['frontOfvehicle'][0].filename;
+  const backOfvehiclefileName = req.files['backOfvehicle'][0].filename;
+  const leftSideOfvehiclefileName = req.files['leftSideOfvehicle'][0].filename;
+  const rightSideOfvehiclefileName =req.files['rightSideOfvehicle'][0].filename;
 
-    const { firstName, lastName, phone, identity, balance, photo, birthday, lat, lng } = req.body;
-    console.log(firstName);
-    let testUserPhone = await Captin.findOne({ phone: req.body.phone });
-    if (testUserPhone) return res.status(400).send('captin phone already exists ');
-    let testUserIdentity = await Captin.findOne({ phone: req.body.identity });
-    if (testUserIdentity) return res.status(400).send('captin identity already exists ');
-    // create the sms code for the conformation 
-    var val = Math.floor(1000 + Math.random() * 9000);
-    console.log(val);
-    today = new Date();
-    today.setHours(0, 0, 0, 0);
-    try {
-        const captin = await new Captin(
-            {
-                firstName,
-                lastName,
-                phone,
-                balance,
-                photo,
-                birthday,
-                identity,
-                lat,
-                lng,
-                sentOtp: val,
-                sortDate: today
-            }
-        ).save()
-            .then(() => {
-                console.log("Captin registered");
-                return res.status(201).json({ msg: "Captin Successfully Registered" });
-                // handle OTP /////////////////////
-                // sendSmsCode(phone);
-            })
+  const basePath = `/public/uploads/`;
 
-    } catch (error) {
-        console.log(error);
-        return res.status(403).json({ msg: err });
-    }
+  const {
+    fullName,
+    phone,
+    identity,
+    photo,
+    birthday,
+    lat,
+    lng,
+    plateNumber,
+    email,
+    address,
+    vehicleType,
+    vehicleYear,
+    bankIban,
+  } = req.body;
+  let testUserPhone = await Captin.findOne({ phone: req.body.phone });
+  if (testUserPhone)
+    return res.status(400).send("captin phone already exists ");
+  let testUserIdentity = await Captin.findOne({ phone: req.body.identity });
+  if (testUserIdentity)
+    return res.status(400).send("captin identity already exists ");
+  
+  today = new Date();
+  today.setHours(0, 0, 0, 0);
+  try {
+    const captin = await new Captin({
+      fullName,
+      phone,
+      identity,
+      photo,
+      drivingLicense: `${basePath}${drivingLicensefileName}`,
+      vehicleLicense: `${basePath}${vehicleLicensefileName}`,
+      frontOfvehicle: `${basePath}${frontOfvehiclefileName}`,
+      backOfvehicle: `${basePath}${backOfvehiclefileName}`,
+      leftSideOfvehicle: `${basePath}${leftSideOfvehiclefileName}`,
+      rightSideOfvehicle: `${basePath}${rightSideOfvehiclefileName}`,
+      birthday,
+      lat,
+      lng,
+      plateNumber,
+      email,
+      address,
+      vehicleType,
+      vehicleYear,
+      bankIban,
+      sortDate: today,
+    })
+      .save()
+      .then(() => {
+        console.log("Captin registered");
+        return res.status(201).json({ msg: "Captin Successfully Registered" });
+        // handle OTP /////////////////////
+        // sendSmsCode(phone);
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(403).json({ msg: err });
+  }
 };
 
-const acceptAnOrder = async (req,res) =>{
-    console.log("acceptAnOrder");;
+const acceptAnOrder = async (req, res) => {
+  console.log("acceptAnOrder");
 
-    const { driver_phone, price, order_id } = req.body;
+  const { driver_phone, price, order_id } = req.body;
 
-    const acceptOrder = await Prouduct.findByIdAndUpdate({ id: order_id }, {
-        $set: {
-           captin_phone:driver_phone,
-            price, 
-        }
-    });
-    if (acceptOrder) {
-        res.status(200).json({ msg:"Order Accepted" })
-        const user_Phone = Order.findOne({ 'id': order_id }, {user_Phone :1})
-
-        const user_socket_id = session.findOne({ 'userPohne': user_Phone }, {userSocketIo:1})
-    } else {
-        res.status(400).send({ "status": false })
-
+  const acceptOrder = await Prouduct.findByIdAndUpdate(
+    { id: order_id },
+    {
+      $set: {
+        captin_phone: driver_phone,
+        price,
+      },
     }
-}
+  );
+  if (acceptOrder) {
+    res.status(200).json({ msg: "Order Accepted" });
+    const user_Phone = Order.findOne({ id: order_id }, { user_Phone: 1 });
 
+    const user_socket_id = session.findOne(
+      { userPohne: user_Phone },
+      { userSocketIo: 1 }
+    );
+
+    io.getIO().to(user_socket_id).emit("captinOffer", {
+      price: price,
+      captin_phone: captin_phone,
+    });
+  } else {
+    res.status(400).send({ msg: "order not accepted" });
+  }
+};
 
 module.exports = {
-    createCaptin,
-    acceptAnOrder
-}
+  createCaptin,
+  acceptAnOrder,
+};

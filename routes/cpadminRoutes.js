@@ -23,5 +23,6 @@ router.post('/createProduct', upload.single('pImage'), subAdminControler.createP
 router.post('/editProduct', subAdminControler.editProduct);
 router.post('/deleteProdutc', subAdminControler.deleteProdutc);
 router.get('/getCpTypes', subAdminControler.getCpTypes);
+router.post('/chageState', subAdminControler.chageState);
 
 module.exports = router;

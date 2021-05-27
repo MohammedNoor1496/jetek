@@ -15,11 +15,9 @@ var storage = multer.diskStorage({
         cb(null, Date.now() + '-' + fileName)
     }
 })
-
-
-
-
 var upload = multer({ storage: storage })
+
+
 router.post('/createuser', userController.createUser);
 router.post('/confirmUser', userController.confirmUser);
 router.post('/updateUserImage', upload.single('file'), userController.updateUserImage);

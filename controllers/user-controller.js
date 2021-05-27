@@ -8,7 +8,7 @@ const { Long } = require('bson');
 const SpAdmin = require('../models/SpAdmin');
 const spCatogarie = require('../models/SpCatogary');
 const Prouduct = require('../models/Products');
-
+const io = require('../socket');
 
 const userLogin = async (req, res) => {
     console.log("userLogin");
@@ -32,7 +32,7 @@ const userLogin = async (req, res) => {
 const verifyPhoneNumber = async (req, res) => {
     console.log("verifyPhoneNumber");
     console.log(req.body);
-
+    
     if (req.body.newuser == true) {
         const user = await User.findOne({ 'phone': req.body.number });
         if (user) return res.status(400).json({ msg: 'user already exists ' });

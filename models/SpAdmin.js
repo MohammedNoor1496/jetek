@@ -36,6 +36,10 @@ const spAdminSchema = new Schema({
         type: Number,
         required: true,
     },
+    status:{
+        type: Boolean,
+        default: false
+    },
     cpImage: {
         type: String,
         required: true,

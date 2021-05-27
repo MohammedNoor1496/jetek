@@ -2,13 +2,14 @@ const SpAdmin = require('../models/SpAdmin');
 var jwt = require('jsonwebtoken');
 const Prouduct = require('../models/Products');
 const spCatogarie = require('../models/SpCatogary');
+const spAdmin = require('../models/SpAdmin');
+
+// var io = require('./socket').init(server);
 
 
 const createCp = async (req, res) => {
     console.log("create Sub Admin function ");
     console.log(req.body);
-    const basePath = `/public/uploads/`;
-    const filename = req.file.filename;
 
     const { cpName, cpType, email, commercialRegister, password, mobile, lat, lng } = req.body;
 
@@ -28,7 +29,6 @@ const createCp = async (req, res) => {
                 phone: mobile,
                 lat,
                 lng,
-                cpImage: `${basePath}${filename}`,
                 isConfirmed: false,
             }
         ).save()
@@ -43,13 +43,12 @@ const createCp = async (req, res) => {
     }
 }
 
-
 const createProduct = async (req, res) => {
     console.log("createProduct");
     console.log(req.body);
     const basePath = `/public/uploads/`;
     const filename = req.file.filename;
-    const { name, price, category_id, sell_point_id } = req.body;
+    const { name, price, sell_point_id } = req.body;
     let testProduct = await SpAdmin.findOne({ name: req.body.name });
     if (testProduct) return res.status(400).json({ msg: "Product  already exists " });
     try {
@@ -59,7 +58,7 @@ const createProduct = async (req, res) => {
                 price,
                 photo: `${basePath}${filename}`,
                 sell_point_id,
-                category_id
+                
             }
         ).save()
             .then(() => {
@@ -74,33 +73,40 @@ const createProduct = async (req, res) => {
 
 }
 
-
 const deleteProdutc = async (req, res) => {
     console.log("deleteProdutc");
     console.log(req.body);
+    const spId = req.body.sell_point_id;
+    const pId = req.body.pId;
+
     try {
-        const deleteProduct = await Prouduct.deleteOne({ 'id': req.body.pId, 'sell_point_id': req.body.spId });
+        const deleteProduct = await Prouduct.findByIdAndDelete({ '_id': pId, 'sell_point_id': spId });
         if (deleteProduct) {
             res.status(200).json({ msg: "Product Delete Successfully " })
         } else {
             res.status(400).send({ "status": false })
         }
 
-    } catch {
+    } catch (error) {
         res.status(401).json({ msg: "error" });
+        console.log(error);
     }
 }
 
 const editProduct = async (req, res) => {
     console.log("editProduct");
     console.log(req.body);
-    const { name, price, category_id } = req.body;
+    const basePath = `/public/uploads/`;
+    const filename = req.file.filename;
+    const { name, price,} = req.body;
+    const productId= req.body.productId;
+    const sell_point_id= req.body.sell_point_id;
 
-    const updateProduct = await Prouduct.findByIdAndUpdate({ id: req.body.productId }, {
+    const updateProduct = await Prouduct.findByIdAndUpdate({ '_id': req.body.productId, 'sell_point_id': sell_point_id }, {
         $set: {
             name,
             price,
-            category_id,
+            photo: `${basePath}${filename}`,
         }
     });
     if (updateProduct) {
@@ -124,6 +130,55 @@ const getCpTypes = async (req,res)=>{
 
 }
 
+const getCpProducts = async (req , res ) =>{
+    console.log("getCpProducts");
+    console.log(req.body);
+    const sell_point_id = req.body.sell_point_id;
+
+    const SpProducts = await Prouduct.find({'sell_point_id':sell_point_id}, { '__v': false });
+    if (SpProducts) {
+        res.status(200).json(SpProducts)
+
+    } else {
+        return res.status(400).json({ msg: "Sp  not found " });
+
+    }
+}
+
+const getProductInfo= async (req,res) =>{
+    console.log("getProductInfo");
+    console.log(req.body);
+    const spId = req.body.sell_point_id;
+    const pId = req.body.pId;
+    try {
+        const Product = await Prouduct.findOne({ '_id': pId, 'sell_point_id': spId });
+        if (Product) {
+            res.status(200).json(Product)
+        } else {
+            res.status(400).send({msg:"product not found "})
+        }
+    } catch (error) {
+        res.status(401).json({ msg: "error" });
+        console.log(error);
+    }
+}
+
+const chageState = async (req,res) =>{
+    console.log("chageState");
+    console.log(req.body);
+    const updateState = await SpAdmin.findByIdAndUpdate({ '_id': req.body.spId }, {
+        $set: {
+            status:req.body.status
+        }
+    });
+    if (updateState) {
+        res.status(200).json({ msg: "status chamged" })
+    } else {
+        res.status(400).send({ "status": false })
+    }
+
+}
+
 
 module.exports = {
     createCp,
@@ -131,5 +186,8 @@ module.exports = {
     createProduct,
     deleteProdutc,
     editProduct,
-    getCpTypes
+    getCpTypes,
+    getCpProducts,
+    getProductInfo,
+    chageState
 }
