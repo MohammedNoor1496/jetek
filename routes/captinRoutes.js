@@ -23,6 +23,7 @@ const files = upload.fields([
   { name: "backOfvehicle", maxCount: 1 },
   { name: "leftSideOfvehicle", maxCount: 1 },
   { name: "rightSideOfvehicle", maxCount: 1 },
+  { name: "photo", maxCount: 1 },
 ]);
 
 router.post("/createcaptin", files,captinController.createCaptin);

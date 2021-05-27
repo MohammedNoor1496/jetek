@@ -16,6 +16,7 @@ const createCaptin = async (req, res) => {
   const backOfvehiclefileName = req.files['backOfvehicle'][0].filename;
   const leftSideOfvehiclefileName = req.files['leftSideOfvehicle'][0].filename;
   const rightSideOfvehiclefileName =req.files['rightSideOfvehicle'][0].filename;
+  const photofileName =req.files['photo'][0].filename;
 
   const basePath = `/public/uploads/`;
 
@@ -23,7 +24,6 @@ const createCaptin = async (req, res) => {
     fullName,
     phone,
     identity,
-    photo,
     birthday,
     lat,
     lng,
@@ -48,7 +48,7 @@ const createCaptin = async (req, res) => {
       fullName,
       phone,
       identity,
-      photo,
+      photo :`${basePath} ${photofileName}`,
       drivingLicense: `${basePath}${drivingLicensefileName}`,
       vehicleLicense: `${basePath}${vehicleLicensefileName}`,
       frontOfvehicle: `${basePath}${frontOfvehiclefileName}`,
