@@ -8,8 +8,7 @@ var io = require("../socket");
 // this api is for captin register user mobile app
 const createCaptin = async (req, res) => {
   console.log("create Captin function ");
-  console.log(req.files['drivingLicense'][0]);
-  console.log(req.files['vehicleLicense'][0]);
+
   const drivingLicensefileName = req.files['drivingLicense'][0].filename;
   const vehicleLicensefileName = req.files['vehicleLicense'][0].filename;
   const frontOfvehiclefileName = req.files['frontOfvehicle'][0].filename;
