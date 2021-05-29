@@ -10,13 +10,19 @@ const createCaptin = async (req, res) => {
   console.log("create Captin function ");
 
   const drivingLicensefileName = req.files['drivingLicense'][0].filename;
+  console.log(drivingLicensefileName);
   const vehicleLicensefileName = req.files['vehicleLicense'][0].filename;
+  console.log(vehicleLicensefileName);
   const frontOfvehiclefileName = req.files['frontOfvehicle'][0].filename;
+  console.log(frontOfvehiclefileName);
   const backOfvehiclefileName = req.files['backOfvehicle'][0].filename;
+  console.log(backOfvehiclefileName);
   const leftSideOfvehiclefileName = req.files['leftSideOfvehicle'][0].filename;
+  console.log(leftSideOfvehiclefileName);
   const rightSideOfvehiclefileName =req.files['rightSideOfvehicle'][0].filename;
+  console.log(rightSideOfvehiclefileName);
   const photofileName =req.files['photo'][0].filename;
-
+console.log(photofileName);
   const basePath = `/public/uploads/`;
 
   const {
@@ -40,6 +46,7 @@ const createCaptin = async (req, res) => {
   if (testUserIdentity)
     return res.status(400).send("captin identity already exists ");
   
+
   today = new Date();
   today.setHours(0, 0, 0, 0);
   try {
