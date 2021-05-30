@@ -148,8 +148,8 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/public", express.static(path.join(__dirname + "/public")));
-
+app.use("/public", express.static(path.join(__dirname + "public")));
+app.use("/uploads",express.static(path.join(__dirname,"uploads")))
 // Prevent parameter pollution
 app.use(hpp());
 
