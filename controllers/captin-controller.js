@@ -11,11 +11,14 @@ const createCaptin = async (req, res) => {
   console.log("create Captin function ");
 
   var str = req.get('Authorization');
+  if(!str){
+    return res.status(401).json({msg:"access denied no token provided"});
+  }
       const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
       // console.log(payload.id);
       const user = await User.findOne({ 'phone': payload.phone });
       if(!user){
-        return res.status(401).send("Bad Token");
+        return res.status(401).json({msg:"Bad Token"});
       }else{
         let userId = user._id;
 
