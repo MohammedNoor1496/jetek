@@ -147,7 +147,9 @@ app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/public", express.static("public"));
+
+app.use("/public", express.static(path.join(__dirname + "public")));
+
 // Prevent parameter pollution
 app.use(hpp());
 
@@ -157,7 +159,6 @@ app.use(morgan("tiny"));
 app.use(express.static(__dirname + "/build"));
 
 // END OF APPLICATION MIDDLEWARES
-
 // User routes
 app.use("/user", userRoutes);
 // Captin Routes

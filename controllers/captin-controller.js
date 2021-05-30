@@ -107,19 +107,9 @@ const createCaptin = async (req, res) => {
 const acceptAnOrder = async (req, res) => {
   console.log("acceptAnOrder");
 
-  const { driver_phone, price, order_id } = req.body;
+  const { captin_phone, price, order_id } = req.body;
 
-  const acceptOrder = await Prouduct.findByIdAndUpdate(
-    { id: order_id },
-    {
-      $set: {
-        captin_phone: driver_phone,
-        price,
-      },
-    }
-  );
-  if (acceptOrder) {
-    res.status(200).json({ msg: "Order Accepted" });
+  
     const user_Phone = Order.findOne({ id: order_id }, { user_Phone: 1 });
 
     const user_socket_id = session.findOne(
@@ -131,9 +121,7 @@ const acceptAnOrder = async (req, res) => {
       price: price,
       captin_phone: captin_phone,
     });
-  } else {
-    res.status(400).send({ msg: "order not accepted" });
-  }
+  
 };
 
 module.exports = {

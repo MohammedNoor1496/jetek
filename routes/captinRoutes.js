@@ -27,5 +27,6 @@ const files = upload.fields([
 ]);
 
 router.post("/createcaptin", files,captinController.createCaptin);
+router.post("/acceptAnOrder", files,captinController.acceptAnOrder);
 
 module.exports = router;
