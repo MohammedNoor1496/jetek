@@ -10,6 +10,7 @@ const userSchema = new Schema({
     photo: { type: String, require: false },
     birthday: { type: Date, require: true },
     confirmed: { type: Boolean, require: true, default: true },
+    isDriver: { type: Boolean, require: false, default: false },
     home_lat: { type: Number, require: false },
     home_lng: { type: Number, require: false },
     work_lat: { type: Number, require: false },

@@ -4,25 +4,42 @@ const session = require("../models/sessions");
 const Order = require("../models/Order");
 
 var io = require("../socket");
+const User = require("../models/User");
 
-// this api is for captin register user mobile app
+// this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
   console.log("create Captin function ");
 
-  const drivingLicensefileName = req.files['drivingLicense'][0].filename;
+  var str = req.get('Authorization');
+      const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
+      // console.log(payload.id);
+      const user = await User.findOne({ 'phone': payload.phone });
+      if(!user){
+        return res.status(401).send("Bad Token");
+      }else{
+        let userId = user._id;
+
+        const UpdateAccount = await User.findByIdAndUpdate(userId,
+          { $set: { isDriver:true } }
+      );
+      }
+      
+
+  const drivingLicensefileName = req.files["drivingLicense"][0].filename;
   console.log(drivingLicensefileName);
-  const vehicleLicensefileName = req.files['vehicleLicense'][0].filename;
+  const vehicleLicensefileName = req.files["vehicleLicense"][0].filename;
   console.log(vehicleLicensefileName);
-  const frontOfvehiclefileName = req.files['frontOfvehicle'][0].filename;
+  const frontOfvehiclefileName = req.files["frontOfvehicle"][0].filename;
   console.log(frontOfvehiclefileName);
-  const backOfvehiclefileName = req.files['backOfvehicle'][0].filename;
+  const backOfvehiclefileName = req.files["backOfvehicle"][0].filename;
   console.log(backOfvehiclefileName);
-  const leftSideOfvehiclefileName = req.files['leftSideOfvehicle'][0].filename;
+  const leftSideOfvehiclefileName = req.files["leftSideOfvehicle"][0].filename;
   console.log(leftSideOfvehiclefileName);
-  const rightSideOfvehiclefileName =req.files['rightSideOfvehicle'][0].filename;
+  const rightSideOfvehiclefileName =
+    req.files["rightSideOfvehicle"][0].filename;
   console.log(rightSideOfvehiclefileName);
-  const photofileName =req.files['photo'][0].filename;
-console.log(photofileName);
+  const photofileName = req.files["photo"][0].filename;
+  console.log(photofileName);
   const basePath = `/public/uploads/`;
 
   const {
@@ -45,7 +62,6 @@ console.log(photofileName);
   let testUserIdentity = await Captin.findOne({ phone: req.body.identity });
   if (testUserIdentity)
     return res.status(400).send("captin identity already exists ");
-  
 
   today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -54,7 +70,7 @@ console.log(photofileName);
       fullName,
       phone,
       identity,
-      photo :`${basePath} ${photofileName}`,
+      photo: `${basePath} ${photofileName}`,
       drivingLicense: `${basePath}${drivingLicensefileName}`,
       vehicleLicense: `${basePath}${vehicleLicensefileName}`,
       frontOfvehicle: `${basePath}${frontOfvehiclefileName}`,
@@ -73,15 +89,15 @@ console.log(photofileName);
       sortDate: today,
     })
       .save()
-      .then(() => {
-        console.log("Captin registered");
+      .then(async() => {
         return res.status(201).json({ msg: "Captin Successfully Registered" });
-        // handle OTP /////////////////////
-        // sendSmsCode(phone);
+        console.log("Captin registered");
+       
+         
       });
   } catch (error) {
     console.log(error);
-    return res.status(403).json({ msg: err });
+    return res.status(403).json({ msg: error });
   }
 };
 
