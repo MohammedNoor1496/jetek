@@ -73,7 +73,7 @@ const createCaptin = async (req, res) => {
       fullName,
       phone,
       identity,
-      photo: `${basePath} ${photofileName}`,
+      photo: `${basePath}${photofileName}`,
       drivingLicense: `${basePath}${drivingLicensefileName}`,
       vehicleLicense: `${basePath}${vehicleLicensefileName}`,
       frontOfvehicle: `${basePath}${frontOfvehiclefileName}`,
