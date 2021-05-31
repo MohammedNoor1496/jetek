@@ -148,7 +148,7 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/public", express.static(path.join(__dirname + "public")));
+app.use("/public/uploads/",express.static(__dirname + '/public/uploads/'));
 // Prevent parameter pollution
 app.use(hpp());
 
@@ -167,7 +167,7 @@ app.use("/admin", adminRoutes);
 // Sub Admin Routes
 app.use("/cpAdmin", subAdminRoutes);
 
-app.get("/*", function (req, res) {
+app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname + "/build/index.html"));
 });
 
