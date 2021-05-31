@@ -10,23 +10,25 @@ const User = require("../models/User");
 const createCaptin = async (req, res) => {
   console.log("create Captin function ");
 
-  var str = req.get('Authorization');
-  if(!str){
-    return res.status(401).json({msg:"access denied no token provided"});
+  var str = req.get("Authorization");
+  if (!str) {
+    return res.status(401).json({ msg: "access denied no token provided" });
   }
-      const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
-      // console.log(payload.id);
-      const user = await User.findOne({ 'phone': payload.phone });
-      if(!user){
-        return res.status(401).json({msg:"Bad Token"});
-      }else{
-        let userId = user._id;
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const user = await User.findOne({ phone: payload.phone });
+  if (!user) {
+    return res.status(401).json({ msg: "Bad Token" });
+  } else {
+    let userId = user._id;
 
-        const UpdateAccount = await User.findByIdAndUpdate(userId,
-          { $set: { isDriver:true } }
-      );
-      }
-      
+    const UpdateAccount = await User.findByIdAndUpdate(userId, {
+      $set: { isDriver: true },
+    });
+    UpdateAccount();
+  }
 
   const drivingLicensefileName = req.files["drivingLicense"][0].filename;
   console.log(drivingLicensefileName);
@@ -92,11 +94,9 @@ const createCaptin = async (req, res) => {
       sortDate: today,
     })
       .save()
-      .then(async() => {
+      .then(async () => {
         return res.status(201).json({ msg: "Captin Successfully Registered" });
         console.log("Captin registered");
-       
-         
       });
   } catch (error) {
     console.log(error);
@@ -109,42 +109,36 @@ const acceptAnOrder = async (req, res) => {
 
   const { captin_phone, price, order_id } = req.body;
 
-  
-    const user_Phone = Order.findOne({ id: order_id }, { user_Phone: 1 });
+  const user_Phone = Order.findOne({ id: order_id }, { user_Phone: 1 });
 
-    const user_socket_id = session.findOne(
-      { userPohne: user_Phone },
-      { userSocketIo: 1 }
-    );
+  const user_socket_id = session.findOne(
+    { userPohne: user_Phone },
+    { userSocketIo: 1 }
+  );
 
-    io.getIO().to(user_socket_id).emit("captinOffer", {
-      price: price,
-      captin_phone: captin_phone,
-    });
-  
+  io.getIO().to(user_socket_id).emit("captinOffer", {
+    price: price,
+    captin_phone: captin_phone,
+  });
 };
-
 
 const deleteCaptinForTesting = async (req, res) => {
   console.log("deleteCaptinForTesting");
 
   try {
-
-      const deleteUser = await Captin.deleteOne({ phone: req.body.phone });
-      if (deleteUser) {
-          res.status(200).json({ msg: "user deleted enjoy testing " })
-      } else {
-          res.status(400).send({ "status": false })
-      }
-
+    const deleteUser = await Captin.deleteOne({ phone: req.body.phone });
+    if (deleteUser) {
+      res.status(200).json({ msg: "user deleted enjoy testing " });
+    } else {
+      res.status(400).send({ status: false });
+    }
   } catch {
-      res.status(401).json({ msg: "error" });
+    res.status(401).json({ msg: "error" });
   }
-
-}
+};
 
 module.exports = {
   createCaptin,
   acceptAnOrder,
-  deleteCaptinForTesting
+  deleteCaptinForTesting,
 };
