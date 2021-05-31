@@ -69,7 +69,6 @@ const createCaptin = async (req, res) => {
   today = new Date();
   today.setHours(0, 0, 0, 0);
   try {
-    console.log("Kjojo"+userId);
     const captin = await new Captin({
       fullName,
       phone,
