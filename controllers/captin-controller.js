@@ -124,6 +124,26 @@ const acceptAnOrder = async (req, res) => {
   
 };
 
+
+const deleteCaptinForTesting = async (req, res) => {
+  console.log("deleteCaptinForTesting");
+
+  try {
+
+
+      const deleteUser = await Captin.deleteOne({ phone: req.body.phone });
+      if (deleteUser) {
+          res.status(200).json({ msg: "user deleted enjoy testing " })
+      } else {
+          res.status(400).send({ "status": false })
+      }
+
+  } catch {
+      res.status(401).json({ msg: "error" });
+  }
+
+}
+
 module.exports = {
   createCaptin,
   acceptAnOrder,
