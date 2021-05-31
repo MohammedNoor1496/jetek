@@ -40,7 +40,9 @@ io.on("connection", (socket) => {
   });
 });
 
-const captins = io.of("/captins");
+io.of("/captins").on("connection", async (socket) => {
+  console.log("new captin connected ");
+});
 
 io.of("/users").on("connection", async (socket) => {
   console.log(socket.handshake.query["userId"]);
