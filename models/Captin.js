@@ -5,7 +5,7 @@ const captinSchema = new Schema({
     fullName: { type: String, require: true },
     phone: { type: Number, require: true, unique: true },
     identity: { type: Number, require: true, unique: true },
-    bankIban: { type: Number, require: true, unique: true },
+    bankIban: { type: String, require: true, unique: true },
     drivingLicense: { type: String, require: true },
     vehicleLicense: { type: String, require: true },
     vehicleType: { type: String, require: true },
