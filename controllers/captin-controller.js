@@ -147,4 +147,5 @@ const deleteCaptinForTesting = async (req, res) => {
 module.exports = {
   createCaptin,
   acceptAnOrder,
+  deleteCaptinForTesting
 };
