@@ -40,7 +40,10 @@ io.on("connection", (socket) => {
   });
 });
 
-io.of("/captins").on("connection", async (socket) => {
+var captins = io.of('/captins');
+
+
+captins.on("connection", async (socket) => {
   console.log("new captin connected ");
   console.log(socket.handshake.query["captinPhone"]);
 
@@ -101,7 +104,7 @@ io.of("/users").on("connection", async (socket) => {
         .save()
         .then(() => {
           console.log("Order created ");
-          io.of("/captins").emit("newRequsetDriver", {
+          captins.emit("newRequsetDriver", {
             user_Phone: data.userPhone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
