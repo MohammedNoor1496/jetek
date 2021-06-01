@@ -24,9 +24,11 @@ const createCaptin = async (req, res) => {
   } else {
     let userId = user._id;
 
-    const UpdateAccount = await User.findByIdAndUpdate(userId, {
-      $set: { isDriver: true },
-    });
+    const UpdateAccount =async() => {
+      await User.findByIdAndUpdate(userId, {
+        $set: { isDriver: true },
+      });
+    } 
     UpdateAccount();
   }
 
