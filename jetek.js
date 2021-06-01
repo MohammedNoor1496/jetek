@@ -104,7 +104,7 @@ io.of("/users").on("connection", async (socket) => {
         .save()
         .then(() => {
           console.log("Order created ");
-          captins.emit("newRequsetDriver", {
+          captins.emit("newrequsetdriver", {
             user_Phone: data.userPhone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
