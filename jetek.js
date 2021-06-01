@@ -42,6 +42,24 @@ io.on("connection", (socket) => {
 
 io.of("/captins").on("connection", async (socket) => {
   console.log("new captin connected ");
+  console.log(socket.handshake.query["captinPhone"]);
+
+  const userPhone = socket.handshake.query["captinPhone"];
+
+  try {
+    const session = await new Session({
+      userPohne: userPhone,
+      userSocketIo: socket.id,
+    })
+      .save()
+      .then(() => {
+        console.log("Session created ");
+      });
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
 });
 
 io.of("/users").on("connection", async (socket) => {

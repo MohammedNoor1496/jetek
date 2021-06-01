@@ -113,7 +113,7 @@ const getAllUsers = async (req, res) => {
 // this route is for admin only 
 const getAllCaptins = async (req, res) => {
     try {
-        const allCaptins = await Captin.find()
+        const allCaptins = await Captin.find().sort({'confirmed':1})
         res.status(200).json(allCaptins)
     } catch (e) {
         res.status(400).send({ "status": false })
