@@ -377,13 +377,20 @@ const getProductInfo = async (req, res) => {
         const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
         // console.log(payload.id);
         const getUser = await User.findOne({ 'phone': payload.phone });
+        console.log(getUser);
         // console.log(getUser);
         if (getUser) {
-            const SpProducts = await Prouduct.find({ 'id': req.body.pId });
-            res.status(200).json(SpProducts)
+            const SpProducts = await Prouduct.findOne({ '_id': req.body.pId });
+            if(SpProducts){
+                return res.status(200).json(SpProducts)
+            }else{
+                return res.status(400).json({ msg: "you can't access " });
+
+            }
+           
 
         } else {
-            return res.status(400).json({ msg: "Sp products  not found " });
+            return res.status(400).json({ msg: "you can't access " });
         }
 
     } catch {
