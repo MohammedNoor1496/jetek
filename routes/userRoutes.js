@@ -22,6 +22,7 @@ router.post('/createuser', userController.createUser);
 router.post('/confirmUser', userController.confirmUser);
 router.post('/updateUserImage', upload.single('file'), userController.updateUserImage);
 router.get('/getUserProfile', userController.getUserProfile);
+router.get('/getOldUserOrders', userController.getOldUserOrders);
 router.post('/updateUserPrifile', userController.updateUserPrifile);
 router.post('/updateAddress', userController.updateAddress);
 router.post('/deleteUserForTesting', userController.deleteUserForTesting);

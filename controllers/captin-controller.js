@@ -139,8 +139,36 @@ const deleteCaptinForTesting = async (req, res) => {
   }
 };
 
+
+const getOldCaptinOrders = async (req,res)=>{
+  console.log("getOldCaptinOrders");
+  var str = req.get('Authorization');
+  try {
+      const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
+      // console.log(payload.id);
+      const getUser = await User.findOne({ 'phone': payload.phone });
+      console.log(getUser.phone);
+      // console.log(getUser);
+      if (getUser) {
+          const orders = await Order.find({'captin_phone':getUser.phone});
+          console.log(orders);
+          if(orders.length == 0 ){
+              return res.status(404).json({msg:"you don't have any old orders"});
+          }else if (orders.length > 0 ){
+              return res.status(200).json(orders);
+          } 
+      }else {
+          return res.status(400).json({ msg: "you can't access " });
+      }
+  } catch {
+      res.status(401).json({ msg: "Bad Token" });
+  }
+}
+
+
 module.exports = {
   createCaptin,
   acceptAnOrder,
   deleteCaptinForTesting,
+  getOldCaptinOrders,
 };

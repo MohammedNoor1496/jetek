@@ -385,10 +385,7 @@ const getProductInfo = async (req, res) => {
                 return res.status(200).json(SpProducts)
             }else{
                 return res.status(400).json({ msg: "you can't access " });
-
             }
-           
-
         } else {
             return res.status(400).json({ msg: "you can't access " });
         }
@@ -396,11 +393,33 @@ const getProductInfo = async (req, res) => {
     } catch {
         res.status(401).json({ msg: "Bad Token" });
     }
-
-
-
 }
 
+const getOldUserOrders = async (req,res)=>{
+    console.log("getOldUserOrders");
+    var str = req.get('Authorization');
+    try {
+        const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' });
+        // console.log(payload.id);
+        const getUser = await User.findOne({ 'phone': payload.phone });
+        // console.log(getUser.phone);
+        console.log(getUser);
+        if (getUser) {
+            const orders = await Order.find({'user_Phone':getUser.phone});
+            console.log(orders);
+            console.log(payload.phone);
+            if(orders.length == 0 ){
+                return res.status(404).json({msg:"you don't have any old orders"});
+            }else if (orders.length > 0 ){
+                return res.status(200).json(orders);
+            } 
+        }else {
+            return res.status(400).json({ msg: "you can't access " });
+        }
+    } catch {
+        res.status(401).json({ msg: "Bad Token" });
+    }
+  }
 
 module.exports = {
     createUser,
@@ -415,5 +434,6 @@ module.exports = {
     getSpForUser,
     getSpTypes,
     getSpPeoducts,
-    getProductInfo
+    getProductInfo,
+    getOldUserOrders,
 }

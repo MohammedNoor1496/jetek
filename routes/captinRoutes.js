@@ -29,5 +29,6 @@ const files = upload.fields([
 router.post("/createcaptin", files,captinController.createCaptin);
 router.post("/acceptAnOrder", files,captinController.acceptAnOrder);
 router.post("/deleteCaptinForTesting", captinController.deleteCaptinForTesting);
+router.get("/getOldCaptinOrders", captinController.getOldCaptinOrders);
 
 module.exports = router;
