@@ -10,6 +10,7 @@ const spCatogarie = require("../models/SpCatogary");
 const Prouduct = require("../models/Products");
 const io = require("../socket");
 const Order = require("../models/Order");
+const Fee = require("../models/Fee");
 const userLogin = async (req, res) => {
   console.log("userLogin");
   console.log(req.body);
@@ -428,6 +429,33 @@ const getOldUserOrders = async (req, res) => {
   }
 };
 
+
+const getPrices = async (req,res) =>{
+    console.log("cancelOrder");
+    var str = req.get("Authorization");
+    try {
+      const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+        algorithm: "HS256",
+      });
+      // console.log(payload.id);
+      const getUser = await User.findOne({ phone: payload.phone });
+      if (!getUser) {
+        return res.status(400).json({ msg: "you can't access " });
+      }
+      console.log(getUser.phone);
+      // console.log(getUser);
+      const fee = await Fee.find();
+      if (fee.length > 0){
+          return res.status(200).json(fee)
+      }else{
+          return res.status(400).json({msg:"fee not found "});
+      }
+
+    } catch {
+      res.status(401).json({ msg: "Bad Token" });
+    }
+}
+
 module.exports = {
   createUser,
   confirmUser,
@@ -443,4 +471,5 @@ module.exports = {
   getSpPeoducts,
   getProductInfo,
   getOldUserOrders,
+  getPrices
 };

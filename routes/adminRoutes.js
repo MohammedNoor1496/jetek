@@ -55,5 +55,6 @@ router.post('/deletePCatogare', adminController.deletePCatogare)
 router.post('/getCaptinInfo', adminController.getCaptinInfo)
 router.post('/getUserInfo', adminController.getUserInfo)
 router.post('/updateCaptinBalance', adminController.updateCaptinBalance)
+router.post('/updatePrices', adminController.updatePrices)
 
 module.exports = router;
