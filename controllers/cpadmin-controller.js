@@ -172,7 +172,7 @@ const chageState = async (req,res) =>{
         }
     });
     if (updateState) {
-        res.status(200).json({ msg: "status chamged" })
+        res.status(200).json({ msg: "status changed" })
     } else {
         res.status(400).send({ "status": false })
     }
