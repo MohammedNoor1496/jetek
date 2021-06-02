@@ -392,7 +392,7 @@ const getProductInfo = async (req, res) => {
       if (SpProducts) {
         return res.status(200).json(SpProducts);
       } else {
-        return res.status(400).json({ msg: "you can't access " });
+        return res.status(400).json({ msg:"no product found" });
       }
     } else {
       return res.status(400).json({ msg: "you can't access " });
@@ -456,6 +456,33 @@ const getPrices = async (req,res) =>{
     }
 }
 
+const getCpInfo = async (req, res) => {
+  console.log("getProductInfo");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  try {
+    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+      algorithm: "HS256",
+    });
+    // console.log(payload.id);
+    const getUser = await User.findOne({ phone: payload.phone });
+    console.log(getUser);
+    // console.log(getUser);
+    if (getUser) {
+      const SpProducts = await SpAdmin.findOne({ _id: req.body.spId });
+      if (SpProducts) {
+        return res.status(200).json(SpProducts);
+      } else {
+        return res.status(400).json({ msg:"no product found" });
+      }
+    } else {
+      return res.status(400).json({ msg: "you can't access " });
+    }
+  } catch {
+    res.status(401).json({ msg: "Bad Token" });
+  }
+};
+
 module.exports = {
   createUser,
   confirmUser,
@@ -471,5 +498,6 @@ module.exports = {
   getSpPeoducts,
   getProductInfo,
   getOldUserOrders,
-  getPrices
+  getPrices,
+  getCpInfo
 };
