@@ -116,12 +116,12 @@ const confirmUser = async (req, res) => {
       var payload = {
         phone: user.phone,
       };
-      console.log(user.phone);
+      // console.log(user.phone);
       const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         algorithm: "HS256",
         expiresIn: "30d",
       });
-      console.log(token);
+      // console.log(token);
       const deleteOtp = await ConformAccount.findByIdAndUpdate(user._id, {
         $set: { sentOtp: "" },
       });
@@ -418,7 +418,7 @@ const getOldUserOrders = async (req, res) => {
     // console.log(getUser);
 
     const orders = await Order.find({ user_Phone: getUser.phone }).populate('sell_point_id');
-    console.log(orders);
+    // console.log(orders);
     if (orders.length == 0) {
       return res.status(404).json({ msg: "you don't have any old orders" });
     } else if (orders.length > 0) {
@@ -442,7 +442,7 @@ const getPrices = async (req,res) =>{
       if (!getUser) {
         return res.status(400).json({ msg: "you can't access " });
       }
-      console.log(getUser.phone);
+      // console.log(getUser.phone);
       // console.log(getUser);
       const fee = await Fee.find();
       if (fee.length > 0){
@@ -466,7 +466,7 @@ const getCpInfo = async (req, res) => {
     });
     // console.log(payload.id);
     const getUser = await User.findOne({ phone: payload.phone });
-    console.log(getUser);
+    // console.log(getUser);
     // console.log(getUser);
     if (getUser) {
       const SpProducts = await SpAdmin.findOne({ _id: req.body.spId });

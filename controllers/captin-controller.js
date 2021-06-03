@@ -33,20 +33,20 @@ const createCaptin = async (req, res) => {
   }
 
   const drivingLicensefileName = req.files["drivingLicense"][0].filename;
-  console.log(drivingLicensefileName);
+  // console.log(drivingLicensefileName);
   const vehicleLicensefileName = req.files["vehicleLicense"][0].filename;
-  console.log(vehicleLicensefileName);
+  // console.log(vehicleLicensefileName);
   const frontOfvehiclefileName = req.files["frontOfvehicle"][0].filename;
-  console.log(frontOfvehiclefileName);
+  // console.log(frontOfvehiclefileName);
   const backOfvehiclefileName = req.files["backOfvehicle"][0].filename;
-  console.log(backOfvehiclefileName);
+  // console.log(backOfvehiclefileName);
   const leftSideOfvehiclefileName = req.files["leftSideOfvehicle"][0].filename;
-  console.log(leftSideOfvehiclefileName);
+  // console.log(leftSideOfvehiclefileName);
   const rightSideOfvehiclefileName =
     req.files["rightSideOfvehicle"][0].filename;
-  console.log(rightSideOfvehiclefileName);
+  // console.log(rightSideOfvehiclefileName);
   const photofileName = req.files["photo"][0].filename;
-  console.log(photofileName);
+  // console.log(photofileName);
   const basePath = `/public/uploads/`;
 
   const {
@@ -171,7 +171,7 @@ const getOldCaptinOrders = async (req, res) => {
     // console.log(getUser);
     if (getUser) {
       const orders = await Order.find({ captin_phone: getUser.phone });
-      console.log(orders);
+      // console.log(orders);
       if (orders.length == 0) {
         return res.status(404).json({ msg: "you don't have any old orders" });
       } else if (orders.length > 0) {
@@ -198,7 +198,7 @@ const getNotAcceptedOrders = async (req, res) => {
     // console.log(getUser);
     if (getUser) {
       const orders = await Order.find({ status: 1 }).populate('sell_point_id')
-      console.log(orders);
+      // console.log(orders);
       if (orders.length == 0) {
         return res.status(404).json({ msg: "you don't have any new orders" });
       } else if (orders.length > 0) {
