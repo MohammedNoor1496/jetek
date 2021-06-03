@@ -11,7 +11,7 @@ const order = new Schema({
         require: false
     },
     sell_point_id: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'SellPoint'
+        type: mongoose.Schema.Types.ObjectId, ref: 'SpAdmin'
     },
     products_id: [
         {

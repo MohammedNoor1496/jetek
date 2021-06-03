@@ -417,7 +417,7 @@ const getOldUserOrders = async (req, res) => {
     console.log(getUser.phone);
     // console.log(getUser);
 
-    const orders = await Order.find({ user_Phone: getUser.phone });
+    const orders = await Order.find({ user_Phone: getUser.phone }).populate('sell_point_id');
     console.log(orders);
     if (orders.length == 0) {
       return res.status(404).json({ msg: "you don't have any old orders" });
