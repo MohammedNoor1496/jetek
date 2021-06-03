@@ -16,7 +16,7 @@ const captinSchema = new Schema({
     rightSideOfvehicle: { type: String, require: true },
     plateNmuber: { type: String, require: true },
     email: { type: String, require: true },
-    balance: { type: Number, require: false },
+    balance: { type: Number, require: false ,default :0 },
     photo: { type: String, require: false },
     Address: { type: String, require: false },
     birthday: { type: Date, require: true },
