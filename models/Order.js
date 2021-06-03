@@ -15,8 +15,8 @@ const order = new Schema({
     },
     products_id: [
         {
-            id:{type: mongoose.Schema.Types.ObjectId, ref: 'Prouduct'} ,
-            quantity : Number
+            product_id:{type: mongoose.Schema.Types.ObjectId, ref: 'Prouduct'} ,
+            quantity : {type: Number}
         }
     ],
     destination_long: {
