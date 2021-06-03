@@ -5,7 +5,22 @@ const spCatogarie = require('../models/SpCatogary');
 const spAdmin = require('../models/SpAdmin');
 
 // var io = require('./socket').init(server);
-
+const getSPIfo= async (req,res) =>{
+    console.log("getSPIfo");
+    console.log(req.body);
+    const pId = req.body.spId;
+    try {
+        const Sp = await spAdmin.findOne({ '_id': pId });
+        if (Sp) {
+            res.status(200).json(Sp)
+        } else {
+            res.status(400).send({msg:"Sp not found "})
+        }
+    } catch (error) {
+        res.status(401).json({ msg: "error" });
+        console.log(error);
+    }
+}
 
 const createCp = async (req, res) => {
     console.log("create Sub Admin function ");
@@ -182,7 +197,7 @@ const chageState = async (req,res) =>{
 
 module.exports = {
     createCp,
-    // getAllAdmins,
+    getSPIfo,
     createProduct,
     deleteProdutc,
     editProduct,

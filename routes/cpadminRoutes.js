@@ -25,5 +25,6 @@ router.post('/deleteProdutc', subAdminControler.deleteProdutc);
 router.get('/getCpTypes', subAdminControler.getCpTypes);
 router.post('/chageState', subAdminControler.chageState);
 router.post('/getCpProducts', subAdminControler.getCpProducts);
+router.post('/getSPIfo', subAdminControler.getSPIfo);
 
 module.exports = router;
