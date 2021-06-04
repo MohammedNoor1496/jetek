@@ -5,6 +5,7 @@ const Order = require("../models/Order");
 
 var io = require("../socket");
 const User = require("../models/User");
+const sessions = require("../models/sessions");
 
 // this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
@@ -109,7 +110,7 @@ const createCaptin = async (req, res) => {
 const acceptAnOrder = async (req, res) => {
   console.log("acceptAnOrder");
   console.log(req.body);
-  const {price, order_id } = req.body;
+  const { price, order_id } = req.body;
 
   var str = req.get("Authorization");
   try {
@@ -121,23 +122,28 @@ const acceptAnOrder = async (req, res) => {
     console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
-      const user_Phone = Order.findOne({ id: order_id }, { user_Phone: 1 });
-      const user_socket_id = session.findOne(
-        { userPohne: user_Phone },
-        { userSocketIo: 1 }
-      );
-      if(user_socket_id){
-        console.log(user_socket_id);
-        console.log("acceptAnOrder user socket id "+ user_socket_id);
-        io.getIO().to(user_socket_id).emit("captinoffer", {
+      const data = await Order.findOne({ _id: order_id }).select({
+        user_Phone: 1,
+      });
+      // console.log("user phone");
+      // console.log(datas.user_Phone);
+      const phone = data.user_Phone;
+      const sessiondata = await sessions.findOne({ "userPohne":phone }).select({userSocketIo: 1});
+      console.log("session data");
+      const socket_id = sessiondata.userSocketIo;
+
+      // console.log(user_socket_id);
+      if (socket_id) {
+        // console.log(user_socket_id);
+        // console.log("acceptAnOrder user socket id "+ user_socket_id);
+        io.getIO().to(socket_id).emit("captinoffer", {
           price: price,
           captin_phone: getUser.phone,
         });
         res.status(200).json({ msg: "your offer has been sent  " });
-      }else{
+      } else {
         console.log("user socket id not found ");
       }
-        
     } else {
       return res.status(400).json({ msg: "you can't access " });
     }
@@ -200,7 +206,7 @@ const getNotAcceptedOrders = async (req, res) => {
     console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
-      const orders = await Order.find({ status: 1 }).populate('sell_point_id')
+      const orders = await Order.find({ status: 1 }).populate("sell_point_id");
       // console.log(orders);
       if (orders.length == 0) {
         return res.status(404).json({ msg: "you don't have any new orders" });
