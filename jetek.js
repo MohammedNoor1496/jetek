@@ -40,8 +40,7 @@ io.on("connection", (socket) => {
   });
 });
 
-var captins = io.of('/captins');
-
+var captins = io.of("/captins");
 
 captins.on("connection", async (socket) => {
   console.log("new captin connected ");
@@ -63,6 +62,17 @@ captins.on("connection", async (socket) => {
     return;
   }
 
+
+  socket.on("disconnect", async function () {
+    console.log("captin sockect id on disconnection" + socket.id);
+    const deleteSession = await Session.deleteOne({ userSocketIo: socket.id })
+      .then(() => {
+        console.log("session terminated");
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      });
+  });
 });
 
 io.of("/users").on("connection", async (socket) => {
@@ -106,16 +116,16 @@ io.of("/users").on("connection", async (socket) => {
           console.log("Order created ");
           captins.emit("newrequsetdriver", {
             user_Phone: data.user_Phone,
-        sell_point_id: data.sell_point_id,
-        products_id: data.products_id,
-        destination_long: data.destination_long,
-        destination_lat: data.destination_lat,
-        origin_long: data.origin_long,
-        origin_lat: data.origin_lat,
-        fee: data.fee,
-        payment: data.payment,
-        paid: data.paid,
-        distance: data.distance,
+            sell_point_id: data.sell_point_id,
+            products_id: data.products_id,
+            destination_long: data.destination_long,
+            destination_lat: data.destination_lat,
+            origin_long: data.origin_long,
+            origin_lat: data.origin_lat,
+            fee: data.fee,
+            payment: data.payment,
+            paid: data.paid,
+            distance: data.distance,
           });
           io.to(socket.id).emit("searchingfordriver", {
             user_Phone: data.userPhone,
@@ -133,22 +143,19 @@ io.of("/users").on("connection", async (socket) => {
         });
     } catch (error) {
       console.log(error);
-      return; 
+      return;
     }
   });
 
   socket.on("disconnect", async function () {
-    console.log("sockect id on disconnection"+socket.id);
-    const deleteSession = await Session.deleteOne({userSocketIo:socket.id}).then(
-      ()=>{
+    console.log("user sockect id on disconnection" + socket.id);
+    const deleteSession = await Session.deleteOne({ userSocketIo: socket.id })
+      .then(() => {
         console.log("session terminated");
-      }
-    ).catch(
-      (err)=>{
-        console.log("err"+err);
-      }
-    )
-
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      });
   });
   console.log("users name space connection ");
   console.log(socket.id);
@@ -191,7 +198,7 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/public/uploads/",express.static(__dirname + '/public/uploads/'));
+app.use("/public/uploads/", express.static(__dirname + "/public/uploads/"));
 // Prevent parameter pollution
 app.use(hpp());
 
