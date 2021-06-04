@@ -143,8 +143,8 @@ io.of("/users").on("connection", async (socket) => {
       ()=>{
         console.log("session terminated");
       }
-    ).catch(err)(
-      ()=>{
+    ).catch(
+      (err)=>{
         console.log("err"+err);
       }
     )
