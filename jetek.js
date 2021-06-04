@@ -133,14 +133,22 @@ io.of("/users").on("connection", async (socket) => {
         });
     } catch (error) {
       console.log(error);
-      return;
+      return; 
     }
   });
 
-  socket.on("disconnect", function () {
+  socket.on("disconnect", async function () {
     console.log("sockect id on disconnection"+socket.id);
-    const deleteSession = await Session.deleteOne({userSocketIo:socket.id})
-    
+    const deleteSession = await Session.deleteOne({userSocketIo:socket.id}).then(
+      ()=>{
+        console.log("session terminated");
+      }
+    ).catch(err)(
+      ()=>{
+        console.log("err"+err);
+      }
+    )
+
   });
   console.log("users name space connection ");
   console.log(socket.id);
