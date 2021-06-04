@@ -138,7 +138,7 @@ io.of("/users").on("connection", async (socket) => {
   });
 
   socket.on("disconnect", function (socket) {
-    console.log(socket.id);
+    console.log("sockect id on disconnection"+socket.id);
   });
   console.log("users name space connection ");
   console.log(socket.id);
