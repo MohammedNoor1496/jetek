@@ -126,15 +126,17 @@ const acceptAnOrder = async (req, res) => {
         { userPohne: user_Phone },
         { userSocketIo: 1 }
       );
+      if(user_socket_id){
         console.log("acceptAnOrder user socket id "+ user_socket_id);
-      io.getIO().to(user_socket_id).emit("captinoffer", {
-        price: price,
-        captin_phone: getUser.phone,
-      });
-
-      
-
-      res.status(200).json({ msg: "your offer has been sent  " });
+        io.getIO().to(user_socket_id).emit("captinoffer", {
+          price: price,
+          captin_phone: getUser.phone,
+        });
+        res.status(200).json({ msg: "your offer has been sent  " });
+      }else{
+        console.log("user socket id not found ");
+      }
+        
     } else {
       return res.status(400).json({ msg: "you can't access " });
     }
