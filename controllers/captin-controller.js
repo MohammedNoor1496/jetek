@@ -136,7 +136,7 @@ const acceptAnOrder = async (req, res) => {
       if (socket_id) {
         // console.log(user_socket_id);
         // console.log("acceptAnOrder user socket id "+ user_socket_id);
-        io.getIO().to(socket_id).emit("captinoffer", {
+        io.getIO().broadcast.to(socket_id).emit("captinoffer", {
           price: price,
           captin_phone: getUser.phone,
         });
