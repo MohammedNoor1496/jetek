@@ -218,6 +218,7 @@ app.use("/admin", adminRoutes);
 app.use("/cpAdmin", subAdminRoutes);
 
 app.get("/", function (req, res) {
+ 
   res.sendFile(path.join(__dirname + "/build/index.html"));
 });
 

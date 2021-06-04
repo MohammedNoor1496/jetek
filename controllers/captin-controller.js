@@ -132,9 +132,11 @@ const acceptAnOrder = async (req, res) => {
       console.log("session data");
       const socket_id = sessiondata.userSocketIo;
 
+      console.log("from captin io");
       // console.log(user_socket_id);
       if (socket_id) {
-        // console.log(user_socket_id);
+        console.log("socket id from acceptAnOrder");
+        console.log(user_socket_id );
         console.log("acceptAnOrder user socket id "+ socket_id);
         io.getIO().to(socket_id).emit("captinoffer", {
           price: price,
