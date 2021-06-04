@@ -127,6 +127,7 @@ const acceptAnOrder = async (req, res) => {
         { userSocketIo: 1 }
       );
       if(user_socket_id){
+        console.log(user_socket_id);
         console.log("acceptAnOrder user socket id "+ user_socket_id);
         io.getIO().to(user_socket_id).emit("captinoffer", {
           price: price,
