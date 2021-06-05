@@ -1,12 +1,11 @@
 const Captin = require("../models/Captin");
 var jwt = require("jsonwebtoken");
-const session = require("../models/sessions");
 const Order = require("../models/Order");
 
 var io = require("../socket");
 const User = require("../models/User");
 const sessions = require("../models/sessions");
-
+const {sendOffer} = require('../jetek') ;
 // this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
   console.log("create Captin function ");
@@ -137,10 +136,7 @@ const acceptAnOrder = async (req, res) => {
       if (socket_id) {
         // console.log(socket_id );
         console.log("acceptAnOrder user socket id "+ socket_id);
-        io.getIO().to(socket_id).emit("captinoffer", {
-          price: price,
-          captin_phone: getUser.phone,
-        });
+        sendOffer(socket_id,price,order_id,getUser.phone)
         res.status(200).json({ msg: "your offer has been sent  " });
       } else {
         console.log("user socket id not found ");

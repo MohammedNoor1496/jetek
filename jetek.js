@@ -40,17 +40,27 @@ io.on("connection", (socket) => {
   });
 });
 
+const sendOffer = (socketId, price ,order_id,captin_phone) =>{
+  io.to(socket_id).emit("captinoffer", {
+    price: price,
+    captin_phone: captin_phone,
+    order_id:order_id
+  });
+}
+
+module.exports ={
+  sendOffer
+}
+
 var captins = io.of("/captins");
 
 captins.on("connection", async (socket) => {
   console.log("new captin connected ");
   console.log(socket.handshake.query["captinPhone"]);
-
   const userPhone = socket.handshake.query["captinPhone"];
-
   try {
     const session = await new Session({
-      userPohne: userPhone,
+      captinPhone: userPhone,
       userSocketIo: socket.id,
     })
       .save()
@@ -61,7 +71,6 @@ captins.on("connection", async (socket) => {
     console.log(error);
     return;
   }
-
 
   socket.on("disconnect", async function () {
     console.log("captin sockect id on disconnection" + socket.id);
@@ -82,7 +91,7 @@ io.of("/users").on("connection", async (socket) => {
 
   try {
     const session = await new Session({
-      userPohne: userPhone,
+      userPhone: userPhone,
       userSocketIo: socket.id,
     })
       .save()
