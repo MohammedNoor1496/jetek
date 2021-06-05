@@ -2,7 +2,7 @@ const Captin = require("../models/Captin");
 var jwt = require("jsonwebtoken");
 const Order = require("../models/Order");
 
-var io = require("../socket");
+var io = require("../socket").getIO();
 const User = require("../models/User");
 const Sessions = require("../models/sessions");
 
@@ -137,7 +137,8 @@ const acceptAnOrder = async (req, res) => {
       if (socket_id) {
         // console.log(socket_id );
         console.log("acceptAnOrder user socket id "+ socket_id);
-        io.getIO().to(socket_id).emit("captinoffer", {
+        
+        io.to(socket_id).emit("captinoffer", {
           price: price,
           captin_phone: getUser.phone,
           order_id:order_id
