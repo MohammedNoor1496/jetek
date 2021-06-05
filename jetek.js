@@ -40,17 +40,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const sendOffer = (socketId, price ,order_id,captin_phone) =>{
-  io.to(socket_id).emit("captinoffer", {
-    price: price,
-    captin_phone: captin_phone,
-    order_id:order_id
-  });
-}
 
-module.exports ={
-  sendOffer
-}
 
 var captins = io.of("/captins");
 
