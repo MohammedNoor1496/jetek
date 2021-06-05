@@ -4,7 +4,7 @@ const Order = require("../models/Order");
 
 var io = require("../socket");
 const User = require("../models/User");
-const sessions = require("../models/sessions");
+const Sessions = require("../models/sessions");
 
 // this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
@@ -118,19 +118,20 @@ const acceptAnOrder = async (req, res) => {
     });
     // console.log(payload.id);
     const getUser = await User.findOne({ phone: payload.phone });
-    console.log(getUser.phone);
+    // console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
       const data = await Order.findOne({ _id: order_id }).select({
         user_Phone: 1,
       });
+      // console.log(data);
       // console.log("user phone");
-      // console.log(datas.user_Phone);
+      console.log(data.user_Phone);
       const phone = data.user_Phone;
-      const sessiondata = await sessions.findOne({ "userPohne":phone }).select({userSocketIo: 1});
-      console.log("session data");
+      const sessiondata = await Sessions.findOne({ "userPhone":phone });
+      console.log("session data"+sessiondata);
       const socket_id = sessiondata.userSocketIo;
-
+      
       console.log("from captin io");
       // console.log(user_socket_id);
       if (socket_id) {
