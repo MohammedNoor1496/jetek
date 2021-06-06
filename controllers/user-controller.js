@@ -532,7 +532,7 @@ const acceptAnOffer = async (req, res) => {
   // to update order data
   const updateAnOrder = async () => {
     const updateOrder = await Order.findByIdAndUpdate(order_id, {
-      $set: { captin_phone: captin_phone, fee: price ,status:2},
+      $set: { captin_phone: captin_phone, fee: price, status: 2 },
     });
 
     if (updateOrder) {
@@ -541,7 +541,12 @@ const acceptAnOffer = async (req, res) => {
       return res.status(400).json({ msg: "order not accepted" });
     }
   };
+  const getOrder = await Order.findOne({ _id: order_id });
 
+  if (getOrder.status !== 1) {
+    console.log(getOrder.status);
+    return res.status(400).json({ msg: "the order is already accepted" });
+  }
   const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
     algorithm: "HS256",
   });
@@ -556,7 +561,7 @@ const acceptAnOffer = async (req, res) => {
   const sessiondata = await Sessions.findOne({ captinPhone: captin_phone });
   console.log("session data" + sessiondata);
 
-  if (sessiondata !== null ) {
+  if (sessiondata !== null) {
     const socket_id = sessiondata.userSocketIo;
 
     io.getIO().of("/captins").to(socket_id).emit("AcceptAnOffer", {
@@ -570,7 +575,7 @@ const acceptAnOffer = async (req, res) => {
   // const socket_id = sessiondata.userSocketIo;
 };
 
-const getCaptinInfo =async(req,res)=>{
+const getCaptinInfo = async (req, res) => {
   console.log("getCaptinInfo");
   console.log(req.body);
   var str = req.get("Authorization");
@@ -585,17 +590,16 @@ const getCaptinInfo =async(req,res)=>{
     return res.status(400).json({ msg: "you can't access " });
   }
 
-  const catptinData = await Captin.findOne({"phone":captin_phone});
+  const catptinData = await Captin.findOne({ phone: captin_phone });
 
-  if (catptinData!== null) {
+  if (catptinData !== null) {
     return res.status(200).json(catptinData);
   } else {
     return res.status(400).json({ msg: "captin not found " });
   }
+};
 
-}
-
-const getOrderInfo =async(req,res)=>{
+const getOrderInfo = async (req, res) => {
   console.log("getOrderInfo");
   console.log(req.body);
   var str = req.get("Authorization");
@@ -610,15 +614,14 @@ const getOrderInfo =async(req,res)=>{
     return res.status(400).json({ msg: "you can't access " });
   }
 
-  const orderData = await Order.findOne({_id:order_id});
+  const orderData = await Order.findOne({ _id: order_id });
 
-  if (orderData!== null) {
+  if (orderData !== null) {
     return res.status(200).json(orderData);
   } else {
     return res.status(400).json({ msg: "captin not found " });
   }
-
-}
+};
 
 module.exports = {
   createUser,
@@ -639,5 +642,5 @@ module.exports = {
   getCpInfo,
   acceptAnOffer,
   getCaptinInfo,
-  getOrderInfo
+  getOrderInfo,
 };
