@@ -2,7 +2,7 @@ const Captin = require("../models/Captin");
 var jwt = require("jsonwebtoken");
 const Order = require("../models/Order");
 
-const  io = require("../socket");
+const io = require("../socket");
 const User = require("../models/User");
 const Sessions = require("../models/sessions");
 
@@ -18,7 +18,7 @@ const createCaptin = async (req, res) => {
     algorithm: "HS256",
   });
   // console.log(payload.id);
-  const user = await User.findOne({ phone: payload.phone });
+  const user = await Captin.findOne({ phone: payload.phone });
   if (!user) {
     return res.status(401).json({ msg: "Bad Token" });
   } else {
@@ -117,7 +117,7 @@ const acceptAnOrder = async (req, res) => {
       algorithm: "HS256",
     });
     // console.log(payload.id);
-    const getUser = await User.findOne({ phone: payload.phone });
+    const getUser = await Captin.findOne({ phone: payload.phone });
     // console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
@@ -128,21 +128,20 @@ const acceptAnOrder = async (req, res) => {
       // console.log("user phone");
       console.log(data.user_Phone);
       const phone = data.user_Phone;
-      const sessiondata = await Sessions.findOne({ "userPhone":phone });
-      console.log("session data"+sessiondata);
-      
-      
+      const sessiondata = await Sessions.findOne({ userPhone: phone });
+      console.log("session data" + sessiondata);
+
       console.log("from captin io");
       // console.log(user_socket_id);
-      if (socket_id !== null ) {
+      if (socket_id !== null) {
         const socket_id = sessiondata.userSocketIo;
         // console.log(socket_id );
-        console.log("acceptAnOrder user socket id "+ socket_id);
-        
+        console.log("acceptAnOrder user socket id " + socket_id);
+
         io.getIO().of("/users").to(socket_id).emit("captinoffer", {
           price: price,
           captin_phone: getUser.phone,
-          order_id:order_id
+          order_id: order_id,
         });
         res.status(200).json({ msg: "your offer has been sent  " });
       } else {
@@ -179,7 +178,7 @@ const getOldCaptinOrders = async (req, res) => {
       algorithm: "HS256",
     });
     // console.log(payload.id);
-    const getUser = await User.findOne({ phone: payload.phone });
+    const getUser = await Captin.findOne({ phone: payload.phone });
     console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
@@ -201,27 +200,46 @@ const getOldCaptinOrders = async (req, res) => {
 const getNotAcceptedOrders = async (req, res) => {
   console.log("getNotAcceptedOrders");
   var str = req.get("Authorization");
-  try {
-    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
-      algorithm: "HS256",
-    });
-    // console.log(payload.id);
-    const getUser = await User.findOne({ phone: payload.phone });
-    console.log(getUser.phone);
-    // console.log(getUser);
-    if (getUser) {
-      const orders = await Order.find({ status: 1 }).populate("sell_point_id");
-      // console.log(orders);
-      if (orders.length == 0) {
-        return res.status(404).json({ msg: "you don't have any new orders" });
-      } else if (orders.length > 0) {
-        return res.status(200).json(orders);
-      }
-    } else {
-      return res.status(400).json({ msg: "you can't access " });
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (getUser !== null) {
+    const orders = await Order.find({ status: 1 }).populate("sell_point_id");
+    // console.log(orders);
+    if (orders.length == 0) {
+      return res.status(404).json({ msg: "you don't have any new orders" });
+    } else if (orders.length > 0) {
+      return res.status(200).json(orders);
     }
-  } catch {
-    res.status(401).json({ msg: "Bad Token" });
+  } else {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+};
+
+const getUserInfo = async (req, res) => {
+  console.log("getCaptinInfo");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  const { user_phone } = req.body;
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access captin not found" });
+  }
+
+  const catptinData = await User.findOne({ phone: user_phone });
+
+  if (catptinData !== null) {
+    return res.status(200).json(catptinData);
+  } else {
+    return res.status(400).json({ msg: "captin not found " });
   }
 };
 
@@ -231,4 +249,5 @@ module.exports = {
   deleteCaptinForTesting,
   getOldCaptinOrders,
   getNotAcceptedOrders,
+  getUserInfo
 };

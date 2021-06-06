@@ -594,6 +594,32 @@ const getCaptinInfo =async(req,res)=>{
   }
 
 }
+
+const getOrderInfo =async(req,res)=>{
+  console.log("getOrderInfo");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  const { order_id } = req.body;
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+
+  const orderData = await Order.findOne({_id:order_id});
+
+  if (orderData!== null) {
+    return res.status(200).json(orderData);
+  } else {
+    return res.status(400).json({ msg: "captin not found " });
+  }
+
+}
+
 module.exports = {
   createUser,
   confirmUser,
@@ -613,4 +639,5 @@ module.exports = {
   getCpInfo,
   acceptAnOffer,
   getCaptinInfo,
+  getOrderInfo
 };

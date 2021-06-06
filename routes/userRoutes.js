@@ -35,6 +35,7 @@ router.post('/getProductInfo', userController.getProductInfo);
 router.post('/getCpInfo', userController.getCpInfo);
 router.post('/acceptAnOffer', userController.acceptAnOffer);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
+router.post('/getOrderInfo', userController.getOrderInfo);
 router.get('/getPrices', userController.getPrices);
 
 
