@@ -18,7 +18,7 @@ const createCaptin = async (req, res) => {
     algorithm: "HS256",
   });
   // console.log(payload.id);
-  const user = await Captin.findOne({ phone: payload.phone });
+  const user = await User.findOne({ phone: payload.phone });
   if (!user) {
     return res.status(401).json({ msg: "Bad Token" });
   } else {
@@ -239,7 +239,7 @@ const getUserInfo = async (req, res) => {
   if (catptinData !== null) {
     return res.status(200).json(catptinData);
   } else {
-    return res.status(400).json({ msg: "captin not found " });
+    return res.status(400).json({ msg: "order not found " });
   }
 };
 
