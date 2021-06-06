@@ -11,7 +11,8 @@ const Prouduct = require("../models/Products");
 var io = require("../socket");
 const Order = require("../models/Order");
 const Fee = require("../models/Fee");
-const Session  = require("../models/sessions");
+const Session = require("../models/sessions");
+const httpRequest = require("https");
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -40,12 +41,26 @@ const verifyPhoneNumber = async (req, res) => {
     const user = await User.findOne({ phone: req.body.number });
     if (!user) return res.status(400).json({ msg: "user is not exsist " });
   }
-
-  const number = req.body.number;
-  const phone = `+966${number}`;
   var otp = Math.floor(1000 + Math.random() * 9000);
   console.log(otp);
+  const number = req.body.number;
+  const phone = `966${number}`;
   console.log(phone);
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  const data = JSON.stringify({
+    userName: process.env.SMS_USER_NAME,
+    numbers: phone,
+    userSender: "jetek",
+    apiKey: process.env.SMS_API_KEY,
+    msg: ` للتفعيل ${otp} مرحبا بكم في تطبيق جيتك الرجاء استخدام الرقم `,
+  });
+
   try {
     const conformAccount = await new ConformAccount({
       phone: number,
@@ -55,8 +70,34 @@ const verifyPhoneNumber = async (req, res) => {
       .then(() => {
         console.log("new data for conform account ");
         // handle OTP /////////////////////
-        sendVeriSms(phone, otp);
-        return res.status(201).json({ msg: "otp sent to the number" });
+
+        const request = httpRequest.request(
+          "https://www.msegat.com/gw/sendsms.php",
+          options,
+          (response) => {
+            console.log("Status", response.statusCode);
+            console.log("Headers", response.headers);
+            let responseData = "";
+            if (res.statusCode == 200) {
+              return res.status(201).json({ msg: "otp sent to the number" });
+
+            } else {
+              return res.status(400).json({ msg: "some thing went wronge" });
+
+            }
+            response.on("data", (dataChunk) => {
+              responseData += dataChunk;
+            });
+            response.on("end", () => {
+              console.log("Response: ", responseData);
+            });
+          }
+        );
+
+        request.on("error", (error) => console.log("ERROR", error));
+
+        request.write(data);
+        request.end();
       });
   } catch (error) {
     console.log(error);
@@ -394,7 +435,7 @@ const getProductInfo = async (req, res) => {
       if (SpProducts) {
         return res.status(200).json(SpProducts);
       } else {
-        return res.status(400).json({ msg:"no product found" });
+        return res.status(400).json({ msg: "no product found" });
       }
     } else {
       return res.status(400).json({ msg: "you can't access " });
@@ -419,7 +460,9 @@ const getOldUserOrders = async (req, res) => {
     console.log(getUser.phone);
     // console.log(getUser);
 
-    const orders = await Order.find({ user_Phone: getUser.phone }).populate('sell_point_id');
+    const orders = await Order.find({ user_Phone: getUser.phone }).populate(
+      "sell_point_id"
+    );
     // console.log(orders);
     if (orders.length == 0) {
       return res.status(404).json({ msg: "you don't have any old orders" });
@@ -431,32 +474,30 @@ const getOldUserOrders = async (req, res) => {
   }
 };
 
-
-const getPrices = async (req,res) =>{
-    console.log("cancelOrder");
-    var str = req.get("Authorization");
-    try {
-      const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
-        algorithm: "HS256",
-      });
-      // console.log(payload.id);
-      const getUser = await User.findOne({ phone: payload.phone });
-      if (!getUser) {
-        return res.status(400).json({ msg: "you can't access " });
-      }
-      // console.log(getUser.phone);
-      // console.log(getUser);
-      const fee = await Fee.find();
-      if (fee.length > 0){
-          return res.status(200).json(fee)
-      }else{
-          return res.status(400).json({msg:"fee not found "});
-      }
-
-    } catch {
-      res.status(401).json({ msg: "Bad Token" });
+const getPrices = async (req, res) => {
+  console.log("cancelOrder");
+  var str = req.get("Authorization");
+  try {
+    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+      algorithm: "HS256",
+    });
+    // console.log(payload.id);
+    const getUser = await User.findOne({ phone: payload.phone });
+    if (!getUser) {
+      return res.status(400).json({ msg: "you can't access " });
     }
-}
+    // console.log(getUser.phone);
+    // console.log(getUser);
+    const fee = await Fee.find();
+    if (fee.length > 0) {
+      return res.status(200).json(fee);
+    } else {
+      return res.status(400).json({ msg: "fee not found " });
+    }
+  } catch {
+    res.status(401).json({ msg: "Bad Token" });
+  }
+};
 
 const getCpInfo = async (req, res) => {
   console.log("getProductInfo");
@@ -475,7 +516,7 @@ const getCpInfo = async (req, res) => {
       if (SpProducts) {
         return res.status(200).json(SpProducts);
       } else {
-        return res.status(400).json({ msg:"no product found" });
+        return res.status(400).json({ msg: "no product found" });
       }
     } else {
       return res.status(400).json({ msg: "you can't access " });
@@ -485,10 +526,10 @@ const getCpInfo = async (req, res) => {
   }
 };
 
-const acceptAnOffer = async (req,res) =>{
+const acceptAnOffer = async (req, res) => {
   console.log("acceptAnOffer");
   console.log(req.body);
-  const {captin_phone, price ,order_id} = req.body;
+  const { captin_phone, price, order_id } = req.body;
   var str = req.get("Authorization");
 
   try {
@@ -502,41 +543,41 @@ const acceptAnOffer = async (req,res) =>{
     }
     // console.log(getUser.phone);
     // console.log(getUser);
-    const sessiondata = await Session.findOne({ "captinPhone":captin_phone }).select({userSocketIo: 1});
+    const sessiondata = await Session.findOne({
+      captinPhone: captin_phone,
+    }).select({ userSocketIo: 1 });
     console.log(sessiondata);
     if (sessiondata == Null) {
-       updateAnOrder();
-      return res.status(200).json({ msg: "user socket id not found but you have accept the order " });
+      updateAnOrder();
+      return res
+        .status(200)
+        .json({
+          msg: "user socket id not found but you have accept the order ",
+        });
     } else {
-      
     }
     const socket_id = sessiondata.userSocketIo;
     console.log(socket_id);
     io.getIO().to(socket_id).emit("AcceptAnOffer", {
-      user_phone :getUser.phone,
-      order_id:order_id
+      user_phone: getUser.phone,
+      order_id: order_id,
     });
 
-    const updateAnOrder = async() =>{
+    const updateAnOrder = async () => {
       const updateOrder = await Order.findByIdAndUpdate(order_id, {
-        $set: { captin_phone:captin_phone , fee : price}
+        $set: { captin_phone: captin_phone, fee: price },
       });
-  
-      if(updateOrder){
-        res.status(200).json({ msg: "you had accept this order" });
-      }else{
-        res.status(400).json({ msg: "order not accepted" });
-  
-      }
-    }
-    
 
+      if (updateOrder) {
+        res.status(200).json({ msg: "you had accept this order" });
+      } else {
+        res.status(400).json({ msg: "order not accepted" });
+      }
+    };
   } catch {
     res.status(401).json({ msg: "Bad Token" });
   }
-
-}
-
+};
 
 module.exports = {
   createUser,
@@ -555,5 +596,5 @@ module.exports = {
   getOldUserOrders,
   getPrices,
   getCpInfo,
-  acceptAnOffer
+  acceptAnOffer,
 };
