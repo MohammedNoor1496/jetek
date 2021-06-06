@@ -11,6 +11,7 @@ const Order = require("../models/Order");
 const Fee = require("../models/Fee");
 const Sessions = require("../models/sessions");
 const httpRequest = require("https");
+const Captin = require("../models/Captin");
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -569,6 +570,30 @@ const acceptAnOffer = async (req, res) => {
   // const socket_id = sessiondata.userSocketIo;
 };
 
+const getCaptinInfo =async(req,res)=>{
+  console.log("getCaptinInfo");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  const { captin_phone } = req.body;
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+
+  const catptinData = await Captin.findOne({"phone":captin_phone});
+
+  if (catptinData!== null) {
+    return res.status(200).json(catptinData);
+  } else {
+    return res.status(400).json({ msg: "captin not found " });
+  }
+
+}
 module.exports = {
   createUser,
   confirmUser,
@@ -587,4 +612,5 @@ module.exports = {
   getPrices,
   getCpInfo,
   acceptAnOffer,
+  getCaptinInfo,
 };
