@@ -112,12 +112,15 @@ const acceptAnOrder = async (req, res) => {
   const { price, order_id } = req.body;
 
   var str = req.get("Authorization");
-  try {
+
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
       algorithm: "HS256",
     });
     // console.log(payload.id);
     const getUser = await Captin.findOne({ phone: payload.phone });
+    if (getUser == null) {
+      return res.status(400).json({msg:"you can not access bad token"})
+    }
     // console.log(getUser.phone);
     // console.log(getUser);
     if (getUser) {
@@ -130,11 +133,11 @@ const acceptAnOrder = async (req, res) => {
       const phone = data.user_Phone;
       const sessiondata = await Sessions.findOne({ userPhone: phone });
       console.log("session data" + sessiondata);
+      const socket_id = sessiondata.userSocketIo;
 
       console.log("from captin io");
       // console.log(user_socket_id);
       if (socket_id !== null) {
-        const socket_id = sessiondata.userSocketIo;
         // console.log(socket_id );
         console.log("acceptAnOrder user socket id " + socket_id);
 
@@ -143,16 +146,16 @@ const acceptAnOrder = async (req, res) => {
           captin_phone: getUser.phone,
           order_id: order_id,
         });
-        res.status(200).json({ msg: "your offer has been sent  " });
+        return res.status(200).json({ msg: "your offer has been sent  " });
       } else {
         console.log("user socket id not found ");
       }
     } else {
       return res.status(400).json({ msg: "you can't access " });
     }
-  } catch {
+ 
     res.status(401).json({ msg: "Bad Token" });
-  }
+  
 };
 
 const deleteCaptinForTesting = async (req, res) => {
