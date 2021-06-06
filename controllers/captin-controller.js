@@ -242,7 +242,7 @@ const getUserInfo = async (req, res) => {
   if (catptinData !== null) {
     return res.status(200).json(catptinData);
   } else {
-    return res.status(400).json({ msg: "order not found " });
+    return res.status(400).json({ msg: "user not found " });
   }
 };
 
