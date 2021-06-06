@@ -1,7 +1,5 @@
 const User = require("../models/User");
 var jwt = require("jsonwebtoken");
-var twilio = require("twilio");
-const { sendVeriSms } = require("../services/sms");
 const { number } = require("joi");
 const ConformAccount = require("../models/ConformAccount ");
 const { Long } = require("bson");
@@ -11,7 +9,7 @@ const Prouduct = require("../models/Products");
 var io = require("../socket");
 const Order = require("../models/Order");
 const Fee = require("../models/Fee");
-const Session = require("../models/sessions");
+const Sessions = require("../models/sessions");
 const httpRequest = require("https");
 
 const userLogin = async (req, res) => {
@@ -80,10 +78,8 @@ const verifyPhoneNumber = async (req, res) => {
             let responseData = "";
             if (res.statusCode == 200) {
               return res.status(201).json({ msg: "otp sent to the number" });
-
             } else {
               return res.status(400).json({ msg: "some thing went wronge" });
-
             }
             response.on("data", (dataChunk) => {
               responseData += dataChunk;
@@ -532,51 +528,45 @@ const acceptAnOffer = async (req, res) => {
   const { captin_phone, price, order_id } = req.body;
   var str = req.get("Authorization");
 
-  try {
-    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
-      algorithm: "HS256",
+  // to update order data
+  const updateAnOrder = async () => {
+    const updateOrder = await Order.findByIdAndUpdate(order_id, {
+      $set: { captin_phone: captin_phone, fee: price ,status:2},
     });
-    // console.log(payload.id);
-    const getUser = await User.findOne({ phone: payload.phone });
-    if (!getUser) {
-      return res.status(400).json({ msg: "you can't access " });
-    }
-    // console.log(getUser.phone);
-    // console.log(getUser);
-    const sessiondata = await Session.findOne({
-      captinPhone: captin_phone,
-    }).select({ userSocketIo: 1 });
-    console.log(sessiondata);
-    if (sessiondata == Null) {
-      updateAnOrder();
-      return res
-        .status(200)
-        .json({
-          msg: "user socket id not found but you have accept the order ",
-        });
+
+    if (updateOrder) {
+      return res.status(200).json({ msg: "you had accept this order" });
     } else {
+      return res.status(400).json({ msg: "order not accepted" });
     }
+  };
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  // console.log(getUser.phone);
+  // console.log(getUser);
+
+  const sessiondata = await Sessions.findOne({ captinPhone: captin_phone });
+  console.log("session data" + sessiondata);
+
+  if (sessiondata !== null ) {
     const socket_id = sessiondata.userSocketIo;
-    console.log(socket_id);
-    io.getIO().to(socket_id).emit("AcceptAnOffer", {
+
+    io.getIO().of("/captins").to(socket_id).emit("AcceptAnOffer", {
       user_phone: getUser.phone,
       order_id: order_id,
     });
-
-    const updateAnOrder = async () => {
-      const updateOrder = await Order.findByIdAndUpdate(order_id, {
-        $set: { captin_phone: captin_phone, fee: price },
-      });
-
-      if (updateOrder) {
-        res.status(200).json({ msg: "you had accept this order" });
-      } else {
-        res.status(400).json({ msg: "order not accepted" });
-      }
-    };
-  } catch {
-    res.status(401).json({ msg: "Bad Token" });
+    updateAnOrder();
+  } else {
+    return res.status(400).json({ msg: "captin is not connected " });
   }
+  // const socket_id = sessiondata.userSocketIo;
 };
 
 module.exports = {

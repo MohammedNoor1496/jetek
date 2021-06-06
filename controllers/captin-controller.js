@@ -130,11 +130,12 @@ const acceptAnOrder = async (req, res) => {
       const phone = data.user_Phone;
       const sessiondata = await Sessions.findOne({ "userPhone":phone });
       console.log("session data"+sessiondata);
-      const socket_id = sessiondata.userSocketIo;
+      
       
       console.log("from captin io");
       // console.log(user_socket_id);
-      if (socket_id) {
+      if (socket_id !== null ) {
+        const socket_id = sessiondata.userSocketIo;
         // console.log(socket_id );
         console.log("acceptAnOrder user socket id "+ socket_id);
         
