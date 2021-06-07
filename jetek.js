@@ -61,7 +61,9 @@ captins.on("connection", async (socket) => {
     console.log(error);
     return;
   }
-
+  socket.on("arrivetopointofsell", async function (data) {
+    console.log(data);
+  })
   socket.on("disconnect", async function () {
     console.log("captin sockect id on disconnection" + socket.id);
     const deleteSession = await Session.deleteOne({ userSocketIo: socket.id })
@@ -111,7 +113,9 @@ io.of("/users").on("connection", async (socket) => {
         distance: data.distance,
       })
         .save()
-        .then(() => {
+        .then((err, result) => {
+          console.log("resutl from mongo db new order");
+          console.log(result );
           console.log("Order created ");
           captins.emit("newrequsetdriver", {
             user_Phone: data.user_Phone,
