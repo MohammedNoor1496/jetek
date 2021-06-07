@@ -21,6 +21,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
+    "express-validator": "^6.11.1",
     "helmet": "^4.4.1",
     "hpp": "^0.2.3",
     "joi": "^17.4.0",

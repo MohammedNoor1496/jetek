@@ -3,6 +3,7 @@ const userController = require('../controllers/user-controller');
 const userAuth = require('../utils/auth');
 const router = express.Router()
 var multer = require('multer')
+const { body, validationResult } = require('express-validator');
 
 
 // this is a middleware for multer to upload the profile image 
