@@ -32,7 +32,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage })
 
 
-router.post('/creatAdmin', adminController.createAdmin);
+router.post('/createAdmin', adminController.createAdmin);
 router.get('/getAdmins', ensureAuthenticatedAdmin, adminController.getAllAdmins);
 router.get('/getAllUsers', adminController.getAllUsers);
 router.get('/getAllCaptins', adminController.getAllCaptins);

@@ -21,9 +21,6 @@ const createAdmin = async (req, res) => {
   let testadmin = await Admin.findOne({ email });
   if (testadmin)
     return res.status(400).json({ msg: "Admin  Email already exists " });
-  let testadmin1 = await Admin.findOne({ phone: req.body.phone });
-  if (testadmin1)
-    return res.status(400).json({ msg: "Admin  Phone already exists " });
 
   try {
     const admin = await new Admin({
@@ -37,7 +34,9 @@ const createAdmin = async (req, res) => {
       password,
     })
       .save()
-      .then(() => {
+      .then((result) => {
+        // console.log("res");
+        // console.log(result._id);
         console.log("admin registered");
         return res.status(201).json({ msg: "Admin Successfully Registered" });
       });

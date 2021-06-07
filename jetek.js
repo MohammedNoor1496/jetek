@@ -113,11 +113,10 @@ io.of("/users").on("connection", async (socket) => {
         distance: data.distance,
       })
         .save()
-        .then((err, result) => {
-          console.log("resutl from mongo db new order");
-          console.log(result );
+        .then((result) => {
           console.log("Order created ");
           captins.emit("newrequsetdriver", {
+            order_id:result._id,
             user_Phone: data.user_Phone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
