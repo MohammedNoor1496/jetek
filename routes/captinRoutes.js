@@ -32,5 +32,6 @@ router.post("/deleteCaptinForTesting", captinController.deleteCaptinForTesting);
 router.get("/getOldCaptinOrders", captinController.getOldCaptinOrders);
 router.post("/getNotAcceptedOrders", captinController.getNotAcceptedOrders);
 router.post("/getUserInfo", captinController.getUserInfo);
+router.post("/updateCaptinLocation", captinController.updateCaptinLocation);
 
 module.exports = router;

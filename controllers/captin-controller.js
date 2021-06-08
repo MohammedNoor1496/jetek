@@ -246,11 +246,44 @@ const getUserInfo = async (req, res) => {
   }
 };
 
+
+const updateCaptinLocation = async (req,res) =>{
+  console.log("updateCaptinLocation");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  const {lat , lng } = req.body;
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access captin not found" });
+  }
+
+ 
+    const update =  await Captin.findByIdAndUpdate(getUser._id, {
+      $set: { lat: lat , lng :lng },
+    }).then(
+      ()=>{
+        return res.status(200).json({msg:"location updated"});
+
+      }
+    ).catch(
+      (err)=>{
+        console.log(err );
+        return res.status(400).json({msg:"location is not  updated"});
+
+      }
+    )
+    
+}
 module.exports = {
   createCaptin,
   acceptAnOrder,
   deleteCaptinForTesting,
   getOldCaptinOrders,
   getNotAcceptedOrders,
-  getUserInfo
+  getUserInfo,
+  updateCaptinLocation
 };
