@@ -278,6 +278,59 @@ const updateCaptinLocation = async (req,res) =>{
     )
     
 }
+
+const updateOrderState = async (req,res) =>{
+  console.log("updateOrderState");
+  console.log(req.body);
+  var str = req.get("Authorization");
+  const {state , order_id } = req.body;
+
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access captin not found" });
+  }
+
+ 
+    const update =  await Order.findByIdAndUpdate(order_id, {
+      $set: { status: state},
+    }).then(
+      async()=>{
+        const data = await Order.findOne({ _id: order_id }).select({
+          user_Phone: 1,
+        });
+        // console.log(data);
+        // console.log("user phone");
+        console.log(data.user_Phone);
+        const phone = data.user_Phone;
+        const sessiondata = await Sessions.findOne({ userPhone: phone });
+        console.log("session data" + sessiondata);
+        const socket_id = sessiondata.userSocketIo;
+  
+        console.log("from captin io");
+        // console.log(user_socket_id);
+        if (socket_id !== null) {
+          // console.log(socket_id );
+          console.log("acceptAnOrder user socket id " + socket_id);
+  
+          io.getIO().of("/users").to(socket_id).emit("statuschange", {
+           status:state,
+            order_id: order_id,
+          });
+        return res.status(200).json({msg:"order updated"});
+      }
+    }
+    ).catch(
+      (err)=>{
+        console.log(err );
+        return res.status(400).json({msg:"order is not  updated"});
+
+      }
+    )
+    
+}
 module.exports = {
   createCaptin,
   acceptAnOrder,
@@ -285,5 +338,6 @@ module.exports = {
   getOldCaptinOrders,
   getNotAcceptedOrders,
   getUserInfo,
-  updateCaptinLocation
+  updateCaptinLocation,
+  updateOrderState
 };
