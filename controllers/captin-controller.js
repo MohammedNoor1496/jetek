@@ -307,13 +307,16 @@ const updateOrderState = async (req,res) =>{
         // console.log("user phone");
         console.log(data.user_Phone);
         const phone = data.user_Phone;
+
         const sessiondata = await Sessions.findOne({ userPhone: phone });
-        console.log("session data" + sessiondata);
-        const socket_id = sessiondata.userSocketIo;
+        if (sessiondata !== null) {
+          const socket_id = sessiondata.userSocketIo;
+          console.log("session data" + sessiondata);
+        
+        
   
         console.log("from captin io");
         // console.log(user_socket_id);
-        if (socket_id !== null) {
           // console.log(socket_id );
           console.log("acceptAnOrder user socket id " + socket_id);
   
