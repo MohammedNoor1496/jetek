@@ -214,6 +214,27 @@ const updatePointOfSellImage = async (req,res) =>{
     }
 }
 
+const updatePointOfSellData = async (req,res)=>{
+    console.log("updatePointOfSellData");
+    console.log(req.body);
+    const {sell_point_id,phone,email,name} = req.body;
+
+    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id':sell_point_id }, {
+        $set: {
+            cpName:name,
+            email:email,
+            phone:phone
+        }
+    });
+    if (updateProduct) {
+        res.status(200).json({ msg: "Point Of Sell updated" })
+    } else {
+        res.status(400).send({ "status": false })
+
+    }
+
+}
+
 module.exports = {
     createCp,
     getSPIfo,
@@ -224,5 +245,6 @@ module.exports = {
     getCpProducts,
     getProductInfo,
     chageState,
-    updatePointOfSellImage
+    updatePointOfSellImage,
+    updatePointOfSellData
 }
