@@ -224,7 +224,7 @@ app.use("/cpAdmin", subAdminRoutes);
 
 app.get("/*", function (req, res) {
  
-  res.sendFile(path.join(__dirname + 'build','index.html'));
+  res.sendFile(path.join(__dirname + "/build/index.html"));
 });
 
 server.listen(process.env.PORT || 4000, () =>
