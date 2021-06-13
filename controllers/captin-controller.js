@@ -321,8 +321,9 @@ const updateOrderState = async (req,res) =>{
            status:state,
             order_id: order_id,
           });
-        return res.status(200).json({msg:"order updated"});
       }
+      return res.status(200).json({msg:"order updated"});
+
     }
     ).catch(
       (err)=>{
