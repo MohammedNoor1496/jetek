@@ -459,6 +459,8 @@ const getOldUserOrders = async (req, res) => {
 
     const orders = await Order.find({ user_Phone: getUser.phone }).populate(
       "sell_point_id"
+    ).populate(
+      '[products_id]'
     );
     // console.log(orders);
     if (orders.length == 0) {
