@@ -19,6 +19,7 @@ var upload = multer({ storage: storage })
 
 router.post('/createCp', upload.single('cpImage'), subAdminControler.createCp);
 router.post('/createProduct', upload.single('pImage'), subAdminControler.createProduct);
+router.post('/updatePointOfSellImage', upload.single('pImage'), subAdminControler.updatePointOfSellImage);
 // router.get('/getAdmins', adminAuth, adminController.getAllAdmins);
 router.post('/editProduct', subAdminControler.editProduct);
 router.post('/deleteProdutc', subAdminControler.deleteProdutc);

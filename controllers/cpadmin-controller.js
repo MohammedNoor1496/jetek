@@ -194,6 +194,25 @@ const chageState = async (req,res) =>{
 
 }
 
+const updatePointOfSellImage = async (req,res) =>{
+    console.log("updatePointOfSellImage");
+    console.log(req.body);
+    const sell_point_id= req.body.sell_point_id;
+    const basePath = `/public/uploads/`;
+    const filename = req.file.filename;
+    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id':sell_point_id }, {
+        $set: {
+           
+            cpImage: `${basePath}${filename}`,
+        }
+    });
+    if (updateProduct) {
+        res.status(200).json({ msg: "Point Of Sell updated" })
+    } else {
+        res.status(400).send({ "status": false })
+
+    }
+}
 
 module.exports = {
     createCp,
@@ -204,5 +223,6 @@ module.exports = {
     getCpTypes,
     getCpProducts,
     getProductInfo,
-    chageState
+    chageState,
+    updatePointOfSellImage
 }
