@@ -116,7 +116,7 @@ io.of("/users").on("connection", async (socket) => {
         .then((result) => {
           console.log("Order created ");
           captins.emit("newrequsetdriver", {
-            order_id: result._id,
+            order_id:result._id,
             user_Phone: data.user_Phone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
@@ -130,7 +130,7 @@ io.of("/users").on("connection", async (socket) => {
             distance: data.distance,
           });
           io.of("/users").to(socket.id).emit("searchingfordriver", {
-            order_id: result._id,
+            order_id:result._id,
             user_Phone: data.userPhone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
@@ -222,7 +222,10 @@ app.use("/cpAdmin", subAdminRoutes);
 
 
 
-app.get("/", (req, res) => res.sendFile(path.resolve('build', 'index.html')));
+app.get("/", function (req, res) {
+ 
+  res.sendFile(path.join(__dirname + "/build/index.html"));
+});
 
 server.listen(process.env.PORT || 4000, () =>
   console.log(`server is running ${process.env.PORT} `)
