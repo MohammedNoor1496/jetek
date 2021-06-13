@@ -22,7 +22,7 @@ router.post('/createProduct', upload.single('pImage'), subAdminControler.createP
 router.post('/updatePointOfSellImage', upload.single('pImage'), subAdminControler.updatePointOfSellImage);
 // router.get('/getAdmins', adminAuth, adminController.getAllAdmins);
 router.post('/editProduct', subAdminControler.editProduct);
-router.post('/getProductInfo', subAdminControler.getProductInfo);
+router.post('/getProductInfo',upload.single('pImage'), subAdminControler.getProductInfo);
 router.post('/deleteProdutc', subAdminControler.deleteProdutc);
 router.get('/getCpTypes', subAdminControler.getCpTypes);
 router.post('/chageState', subAdminControler.chageState);
