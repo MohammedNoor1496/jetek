@@ -42,7 +42,7 @@ const spAdminSchema = new Schema({
     },
     cpImage: {
         type: String,
-        required: true,
+        required: false,
     },
     isConfirmed: {
         type: Boolean,
