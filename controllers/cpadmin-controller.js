@@ -151,12 +151,12 @@ const getCpProducts = async (req, res) => {
     console.log(req.body);
     const sell_point_id = req.body.sell_point_id;
 
-    const SpProducts = await Prouduct.find({ 'sell_point_id': sell_point_id }, { '__v': false });
-    if (SpProducts) {
+    const SpProducts = await Prouduct.find({ 'sell_point_id': sell_point_id });
+    if (SpProducts.length >0 ) {
         res.status(200).json(SpProducts)
 
     } else {
-        return res.status(400).json({ msg: "Sp  not found " });
+        return res.status(400).json({ msg: "لا توجد منتجات " });
 
     }
 }
