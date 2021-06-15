@@ -6,7 +6,7 @@ const spAdmin = require('../models/SpAdmin');
 var bcrypt = require("bcryptjs");
 
 // var io = require('./socket').init(server);
-const getSPIfo= async (req,res) =>{
+const getSPIfo = async (req, res) => {
     console.log("getSPIfo");
     console.log(req.body);
     const pId = req.body.spId;
@@ -15,7 +15,7 @@ const getSPIfo= async (req,res) =>{
         if (Sp) {
             res.status(200).json(Sp)
         } else {
-            res.status(400).send({msg:"Sp not found "})
+            res.status(400).send({ msg: "Sp not found " })
         }
     } catch (error) {
         res.status(401).json({ msg: "error" });
@@ -39,7 +39,7 @@ const createCp = async (req, res) => {
             {
                 cpName,
                 cpType,
-                email:email.toLowerCase(),
+                email: email.toLowerCase(),
                 commercialRegister,
                 password,
                 phone: mobile,
@@ -74,7 +74,7 @@ const createProduct = async (req, res) => {
                 price,
                 photo: `${basePath}${filename}`,
                 sell_point_id,
-                
+
             }
         ).save()
             .then(() => {
@@ -114,9 +114,9 @@ const editProduct = async (req, res) => {
     console.log(req.body);
     const basePath = `/public/uploads/`;
     const filename = req.file.filename;
-    const { name, price,} = req.body;
-    const productId= req.body.productId;
-    const sell_point_id= req.body.sell_point_id;
+    const { name, price, } = req.body;
+    const productId = req.body.productId;
+    const sell_point_id = req.body.sell_point_id;
 
     const updateProduct = await Prouduct.findByIdAndUpdate({ '_id': req.body.productId, 'sell_point_id': sell_point_id }, {
         $set: {
@@ -134,7 +134,7 @@ const editProduct = async (req, res) => {
 
 }
 
-const getCpTypes = async (req,res)=>{
+const getCpTypes = async (req, res) => {
     const Sps = await spCatogarie.find({}, { 'createdAt': false, 'updatedAt': false, '__v': false });
     if (Sps) {
         res.status(200).json(Sps)
@@ -146,12 +146,12 @@ const getCpTypes = async (req,res)=>{
 
 }
 
-const getCpProducts = async (req , res ) =>{
+const getCpProducts = async (req, res) => {
     console.log("getCpProducts");
     console.log(req.body);
     const sell_point_id = req.body.sell_point_id;
 
-    const SpProducts = await Prouduct.find({'sell_point_id':sell_point_id}, { '__v': false });
+    const SpProducts = await Prouduct.find({ 'sell_point_id': sell_point_id }, { '__v': false });
     if (SpProducts) {
         res.status(200).json(SpProducts)
 
@@ -161,7 +161,7 @@ const getCpProducts = async (req , res ) =>{
     }
 }
 
-const getProductInfo= async (req,res) =>{
+const getProductInfo = async (req, res) => {
     console.log("getProductInfo");
     console.log(req.body);
     const spId = req.body.sell_point_id;
@@ -171,7 +171,7 @@ const getProductInfo= async (req,res) =>{
         if (Product) {
             res.status(200).json(Product)
         } else {
-            res.status(400).send({msg:"product not found "})
+            res.status(400).send({ msg: "product not found " })
         }
     } catch (error) {
         res.status(401).json({ msg: "error" });
@@ -179,12 +179,12 @@ const getProductInfo= async (req,res) =>{
     }
 }
 
-const chageState = async (req,res) =>{
+const chageState = async (req, res) => {
     console.log("chageState");
     console.log(req.body);
     const updateState = await SpAdmin.findByIdAndUpdate({ '_id': req.body.spId }, {
         $set: {
-            status:req.body.status
+            status: req.body.status
         }
     });
     if (updateState) {
@@ -195,15 +195,15 @@ const chageState = async (req,res) =>{
 
 }
 
-const updatePointOfSellImage = async (req,res) =>{
+const updatePointOfSellImage = async (req, res) => {
     console.log("updatePointOfSellImage");
     console.log(req.body);
-    const sell_point_id= req.body.sell_point_id;
+    const sell_point_id = req.body.sell_point_id;
     const basePath = `/public/uploads/`;
     const filename = req.file.filename;
-    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id':sell_point_id }, {
+    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id': sell_point_id }, {
         $set: {
-           
+
             cpImage: `${basePath}${filename}`,
         }
     });
@@ -215,16 +215,16 @@ const updatePointOfSellImage = async (req,res) =>{
     }
 }
 
-const updatePointOfSellData = async (req,res)=>{
+const updatePointOfSellData = async (req, res) => {
     console.log("updatePointOfSellData");
     console.log(req.body);
-    const {sell_point_id,phone,email,name} = req.body;
+    const { sell_point_id, phone, email, name } = req.body;
 
-    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id':sell_point_id }, {
+    const updateProduct = await SpAdmin.findByIdAndUpdate({ '_id': sell_point_id }, {
         $set: {
-            cpName:name,
-            email:email,
-            phone:phone
+            cpName: name,
+            email: email,
+            phone: phone
         }
     });
     if (updateProduct) {
@@ -237,50 +237,57 @@ const updatePointOfSellData = async (req,res)=>{
 }
 
 
-const pointOfSellLogin= async (req,res)=>{
+const pointOfSellLogin = async (req, res) => {
     console.log("pointOfSellLogin");
     console.log(req.body);
-    const {email,password} = req.body;
+    const { email, password } = req.body;
 
     let spAdmin = await SpAdmin.findOne({ email: email.toLowerCase() });
 
     if (!spAdmin)
-    return res
-      .status(400)
-      .json({ msg: "البيانات التي تريد تسجيل الدخول بها خاطئة " });
-
-      if (!spAdmin.isConfirmed){
         return res
-      .status(400)
-      .json({ msg: "لم يتم تفعيل الحساب الرجاء التواصل مع الادارة حتي يتم تفعيل حسابك " });
+            .status(400)
+            .json({
+                auth: false,
+                msg: "البيانات التي تريد تسجيل الدخول بها خاطئة "
+            });
 
-      }
+    if (!spAdmin.isConfirmed) {
+        return res
+            .status(400)
+            .json({
+                auth: false,
+                msg: "لم يتم تفعيل الحساب الرجاء التواصل مع الادارة حتي يتم تفعيل حسابك "
+            });
 
-      const passwordIsValid = await bcrypt.compareSync(
+    }
+
+    const passwordIsValid = await bcrypt.compareSync(
         `` + password,
         spAdmin.password
-      );
-    
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "البيانات التي تريد تسجيل الدخول بها خاطئة ",
-        });
-      }
+    );
 
-      var token = jwt.sign(
+    if (!passwordIsValid) {
+        return res.status(401).send({
+            auth: false,
+            message: "البيانات التي تريد تسجيل الدخول بها خاطئة ",
+        });
+    }
+
+    var token = jwt.sign(
         { id: spAdmin.id },
         process.env.ADMIN_ACCESS_TOKEN_SECRET,
         {
-          expiresIn: 86400, // 24 hours
+            expiresIn: 86400, // 24 hours
         }
-      );
-    
-      res.header("auth-token", token).send({
-        id: spAdmin._id,
-        email: spAdmin.email,
+    );
+
+    res.header("auth-token", token).send({
+
+        result: spAdmin,
         token: token,
-      });
+        auth: true
+    });
 }
 
 module.exports = {

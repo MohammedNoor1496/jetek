@@ -18,7 +18,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage })
 
 const verifySellPointAdmin =(req,res,next)=>{
-    const token = req.headers["auth-token"];
+    const token = req.headers["x-access-token"];
     if(!token){
         return res.status(400).json({ msg: "you can't access " });
     }else{
