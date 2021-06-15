@@ -249,6 +249,12 @@ const pointOfSellLogin= async (req,res)=>{
       .status(400)
       .json({ msg: "البيانات التي تريد تسجيل الدخول بها خاطئة " });
 
+      if (!spAdmin.isConfirmed){
+        return res
+      .status(400)
+      .json({ msg: "لم يتم تفعيل الحساب الرجاء التواصل مع الادارة حتي يتم تفعيل حسابك " });
+
+      }
 
       const passwordIsValid = await bcrypt.compareSync(
         `` + password,
