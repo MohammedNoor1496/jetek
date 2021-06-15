@@ -38,7 +38,7 @@ const createCp = async (req, res) => {
             {
                 cpName,
                 cpType,
-                email,
+                email:email.toLowerCase(),
                 commercialRegister,
                 password,
                 phone: mobile,
@@ -235,6 +235,16 @@ const updatePointOfSellData = async (req,res)=>{
 
 }
 
+
+const pointOfSellLogin= async (req,res)=>{
+    console.log("pointOfSellLogin");
+    console.log(req.body);
+    const {email,password} = req.body;
+
+    let spAdmin = await SpAdmin.findOne({ email: req.body.email.toLowerCase() });
+
+}
+
 module.exports = {
     createCp,
     getSPIfo,
@@ -246,5 +256,6 @@ module.exports = {
     getProductInfo,
     chageState,
     updatePointOfSellImage,
-    updatePointOfSellData
+    updatePointOfSellData,
+    pointOfSellLogin
 }
