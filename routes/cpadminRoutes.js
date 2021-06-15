@@ -42,7 +42,7 @@ router.post('/updatePointOfSellImage', verifySellPointAdmin, upload.single('pIma
 router.post('/editProduct', verifySellPointAdmin, upload.single('pImage'),subAdminControler.editProduct);
 router.post('/getProductInfo', verifySellPointAdmin, subAdminControler.getProductInfo);
 router.post('/deleteProdutc', verifySellPointAdmin, subAdminControler.deleteProdutc);
-router.get('/getCpTypes', verifySellPointAdmin,subAdminControler.getCpTypes);
+router.get('/getCpTypes',subAdminControler.getCpTypes);
 router.post('/chageState', verifySellPointAdmin, subAdminControler.chageState);
 router.post('/getCpProducts', verifySellPointAdmin, subAdminControler.getCpProducts);
 router.post('/getSPIfo', verifySellPointAdmin, subAdminControler.getSPIfo);
