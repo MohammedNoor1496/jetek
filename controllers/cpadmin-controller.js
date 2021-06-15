@@ -3,6 +3,7 @@ var jwt = require('jsonwebtoken');
 const Prouduct = require('../models/Products');
 const spCatogarie = require('../models/SpCatogary');
 const spAdmin = require('../models/SpAdmin');
+var bcrypt = require("bcryptjs");
 
 // var io = require('./socket').init(server);
 const getSPIfo= async (req,res) =>{
@@ -241,8 +242,39 @@ const pointOfSellLogin= async (req,res)=>{
     console.log(req.body);
     const {email,password} = req.body;
 
-    let spAdmin = await SpAdmin.findOne({ email: req.body.email.toLowerCase() });
+    let spAdmin = await SpAdmin.findOne({ email: email.toLowerCase() });
 
+    if (!spAdmin)
+    return res
+      .status(400)
+      .json({ msg: "البيانات التي تريد تسجيل الدخول بها خاطئة " });
+
+
+      const passwordIsValid = await bcrypt.compareSync(
+        `` + password,
+        spAdmin.password
+      );
+    
+      if (!passwordIsValid) {
+        return res.status(401).send({
+          accessToken: null,
+          message: "البيانات التي تريد تسجيل الدخول بها خاطئة ",
+        });
+      }
+
+      var token = jwt.sign(
+        { id: spAdmin.id },
+        process.env.ADMIN_ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: 86400, // 24 hours
+        }
+      );
+    
+      res.header("auth-token", token).send({
+        id: spAdmin._id,
+        email: spAdmin.email,
+        token: token,
+      });
 }
 
 module.exports = {
