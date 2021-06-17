@@ -191,7 +191,13 @@ const limiter = rateLimit({
   message: "Too Many Request from this IP, please try again in an hour",
 });
 app.use("/api", limiter);
-
+app.use(function (req, res, next) {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; font-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'"
+  );
+  next();
+});
 // Set security HTTP headers
 app.use(helmet());
 
