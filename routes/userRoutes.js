@@ -3,8 +3,7 @@ const userController = require('../controllers/user-controller');
 const userAuth = require('../utils/auth');
 const router = express.Router()
 var multer = require('multer')
-const { body, validationResult } = require('express-validator');
-
+const  {valudateCancelOrder, cancelOrderValidation} = require('../middlewares/cancelOrder');
 
 // this is a middleware for multer to upload the profile image 
 var storage = multer.diskStorage({
@@ -38,6 +37,7 @@ router.post('/acceptAnOffer', userController.acceptAnOffer);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
 router.post('/getOrderInfo', userController.getOrderInfo);
 router.get('/getPrices', userController.getPrices);
+router.get('/cancelOrder',valudateCancelOrder,cancelOrderValidation,userController.cancelOrder);
 
 
 module.exports = router;

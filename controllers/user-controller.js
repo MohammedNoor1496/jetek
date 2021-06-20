@@ -445,32 +445,35 @@ const getProductInfo = async (req, res) => {
 const getOldUserOrders = async (req, res) => {
   console.log("getOldUserOrders");
   var str = req.get("Authorization");
-  try {
-    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
-      algorithm: "HS256",
-    });
-    // console.log(payload.id);
-    const getUser = await User.findOne({ phone: payload.phone });
-    if (!getUser) {
-      return res.status(400).json({ msg: "you can't access " });
-    }
-    console.log(getUser.phone);
-    // console.log(getUser);
 
-    const orders = await Order.find({ user_Phone: getUser.phone }).populate(
-      "sell_point_id"
-    ).populate(
-      '[products_id]'
-    ).limit(10)
-    // console.log(orders);
-    if (orders.length == 0) {
-      return res.status(404).json({ msg: "you don't have any old orders" });
-    } else if (orders.length > 0) {
-      return res.status(200).json(orders);
-    }
-  } catch {
-    res.status(401).json({ msg: "Bad Token" });
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+
   }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+  // console.log(getUser);
+
+  const orders = await Order.find({ user_Phone: getUser.phone }).populate(
+    "sell_point_id"
+  ).populate(
+    '[products_id]'
+  ).limit(10)
+  // console.log(orders);
+  if (orders.length == 0) {
+    return res.status(404).json({ msg: "you don't have any old orders" });
+  } else if (orders.length > 0) {
+    return res.status(200).json(orders);
+  }
+
+
 };
 
 const getPrices = async (req, res) => {
@@ -626,9 +629,46 @@ const getOrderInfo = async (req, res) => {
 };
 
 
-const cancelOrder = async (req,res) =>{
+const cancelOrder = async (req, res) => {
   console.log("cancelOrder");
   console.log(req.body);
+  var str = req.get("Authorization");
+  const { order_id } = req.body;
+
+  if (!str) {
+    return res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+
+// console.log(getUser.phone);
+  const order = await Order.findOne({ '_id': order_id, 'user_Phone': getUser.phone });
+  // console.log(order);
+  if (!order) return res.status(400).json({ msg: "order is not   exists " });
+
+  console.log(order.status);
+  if (order.status == 1) {
+    const updateOrder = await Order.findByIdAndUpdate(order_id, {
+      $set: { status: 0 },
+    });
+    if (updateOrder) {
+      return res.status(200).json({ msg: "order canceled" });
+    } else {
+      return res.status(400).json({ msg: "order not canceled" });
+    }
+  } else {
+    return res.status(400).json({ msg: "you can't  cancel the order after you accept an offer" });
+  }
+
+  
+
+
 }
 
 module.exports = {
