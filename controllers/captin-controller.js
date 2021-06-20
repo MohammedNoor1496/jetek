@@ -149,6 +149,8 @@ const acceptAnOrder = async (req, res) => {
         return res.status(200).json({ msg: "your offer has been sent  " });
       } else {
         console.log("user socket id not found ");
+        return res.status(400).json({ msg: "the user is not connected" });
+
       }
     } else {
       return res.status(400).json({ msg: "you can't access " });

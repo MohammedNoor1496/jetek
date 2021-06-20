@@ -625,11 +625,18 @@ const getOrderInfo = async (req, res) => {
   }
 };
 
+
+const cancelOrder = async (req,res) =>{
+  console.log("cancelOrder");
+  console.log(req.body);
+}
+
 module.exports = {
   createUser,
   confirmUser,
   updateUserImage,
   getUserProfile,
+  cancelOrder,
   updateUserPrifile,
   updateAddress,
   deleteUserForTesting,
