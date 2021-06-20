@@ -187,7 +187,7 @@ const getOldCaptinOrders = async (req, res) => {
     if (getUser) {
       const orders = await Order.find({ captin_phone: getUser.phone }).populate(
         "sell_point_id"
-      );;
+      ).limit(10);
       // console.log(orders);
       if (orders.length == 0) {
         return res.status(404).json({ msg: "you don't have any old orders" });

@@ -461,7 +461,7 @@ const getOldUserOrders = async (req, res) => {
       "sell_point_id"
     ).populate(
       '[products_id]'
-    );
+    ).limit(10)
     // console.log(orders);
     if (orders.length == 0) {
       return res.status(404).json({ msg: "you don't have any old orders" });
