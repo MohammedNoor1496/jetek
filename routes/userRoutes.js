@@ -37,7 +37,7 @@ router.post('/acceptAnOffer', userController.acceptAnOffer);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
 router.post('/getOrderInfo', userController.getOrderInfo);
 router.get('/getPrices', userController.getPrices);
-router.get('/cancelOrder',valudateCancelOrder,cancelOrderValidation,userController.cancelOrder);
+router.get('/cancelOrder',userController.cancelOrder);
 
 
 module.exports = router;
