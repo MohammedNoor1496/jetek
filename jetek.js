@@ -162,12 +162,7 @@ io.of("/users").on("connection", async (socket) => {
   });
   console.log("users name space connection ");
   console.log(socket.id);
-  socket.on("newClient", (data) => {
-    console.log(data.userPhone);
-    // console.log(socket.id);
 
-    // start Session
-  });
 });
 // END OF REAL TIME PART
 
