@@ -172,14 +172,14 @@ io.of("/users").on("connection", async (socket) => {
             console.log("the typ is not 1 or 2 ");
           }
 
-          const sessiondata = await Sessions.find({ theToFind: receiverPhone }).sort({ 'createdAt': -1 }).limit(1);
+          const sessiondata = await Session.find({ theToFind: receiverPhone }).sort({ 'createdAt': -1 }).limit(1);
           if (sessiondata !== null) {
             const socket_id = sessiondata.userSocketIo;
             console.log("session data" + sessiondata);
             console.log("from captin io");
             // console.log(user_socket_id);
             // console.log(socket_id );
-            console.log("acceptAnOrder user socket id " + socket_id);
+            console.log("message captin socket id " + socket_id);
 
             io.of("/captin").to(socket_id).emit("messagefromuser", {
               userPhone:data.userphone,
@@ -187,8 +187,6 @@ io.of("/users").on("connection", async (socket) => {
               content:data.content
             });
           }
-
-
         });
     } catch (error) {
       console.log(error);
