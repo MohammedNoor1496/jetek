@@ -172,7 +172,7 @@ io.of("/users").on("connection", async (socket) => {
             console.log("the typ is not 1 or 2 ");
           }
 
-          const sessiondata = await Session.find({ theToFind: data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
+          const sessiondata = await Session.find({ 'captinPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
           if (sessiondata !== null) {
             const socket_id = sessiondata.userSocketIo;
             console.log("session data" + sessiondata);
