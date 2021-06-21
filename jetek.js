@@ -154,6 +154,7 @@ io.of("/users").on("connection", async (socket) => {
 
   socket.on("messagetocaptin", async function (data) {
     console.log("message to captin event");
+    console.log(data);
     try {
       const message = await new Message({
         senderPhone: data.userphone,
