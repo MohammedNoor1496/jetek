@@ -3,12 +3,12 @@ const {Schema} = mongoose;
 const MessageSchema =new Schema({
 
     senderPhone: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         required: true,
        
     },
     receiverPhone: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         required: true,
         ref: 'User',
     },
