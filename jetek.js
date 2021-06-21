@@ -20,13 +20,13 @@ const userRoutes = require("./routes/userRoutes");
 const captinRoutes = require("./routes/captinRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const subAdminRoutes = require("./routes/cpadminRoutes");
-const { sendVeriSms } = require("./services/sms");
 
 // stablish the connection with the dataBase
 connectDB();
 
 const Order = require("./models/Order");
 const Session = require("./models/sessions");
+const Messages = require("./models/Messages");
 
 // REAL TIME PART
 io.on("connection", (socket) => {
@@ -63,6 +63,8 @@ captins.on("connection", async (socket) => {
   }
   socket.on("arrivetopointofsell", async function (data) {
     console.log(data);
+
+
   })
   socket.on("disconnect", async function () {
     console.log("captin sockect id on disconnection" + socket.id);
@@ -116,7 +118,7 @@ io.of("/users").on("connection", async (socket) => {
         .then((result) => {
           console.log("Order created ");
           captins.emit("newrequsetdriver", {
-            order_id:result._id,
+            order_id: result._id,
             user_Phone: data.user_Phone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
@@ -130,7 +132,7 @@ io.of("/users").on("connection", async (socket) => {
             distance: data.distance,
           });
           io.of("/users").to(socket.id).emit("searchingfordriver", {
-            order_id:result._id,
+            order_id: result._id,
             user_Phone: data.userPhone,
             sell_point_id: data.sell_point_id,
             products_id: data.products_id,
@@ -149,6 +151,51 @@ io.of("/users").on("connection", async (socket) => {
       return;
     }
   });
+
+  socket.on("messagetocaptin", async function (data) {
+    console.log("message to captin event");
+    try {
+      const message = await Messages.new({
+        senderPhone: data.userphone,
+        receiverPhone: data.captinphone,
+        content: data.content,
+        type: data.type,
+        orderId:data.orderId
+      }).save()
+        .then(async(result) => {
+          if (data.type == 1) {
+            theToFind = 'captinPhone'
+          } else if (data.type == 2) {
+            theToFind = 'userPhone'
+          } else {
+            console.log("the typ is not 1 or 2 ");
+          }
+
+          const sessiondata = await Sessions.find({ theToFind: receiverPhone }).sort({ 'createdAt': -1 }).limit(1);
+          if (sessiondata !== null) {
+            const socket_id = sessiondata.userSocketIo;
+            console.log("session data" + sessiondata);
+            console.log("from captin io");
+            // console.log(user_socket_id);
+            // console.log(socket_id );
+            console.log("acceptAnOrder user socket id " + socket_id);
+
+            io.of("/captin").to(socket_id).emit("messagefromuser", {
+              userPhone:data.userphone,
+              orderId:data.orderId,
+              content:data.content
+            });
+          }
+
+
+        });
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+
+  })
+
 
   socket.on("disconnect", async function () {
     console.log("user sockect id on disconnection" + socket.id);
@@ -221,10 +268,14 @@ app.use("/admin", adminRoutes);
 // Sub Admin Routes
 app.use("/cpAdmin", subAdminRoutes);
 
+// app.use("/test", async (req, res) => {
+//   const socketID = await Order.find({ 'user_Phone': req.body.uf }).sort({ 'createdAt': -1 }).limit(1)
+//   console.log(socketID);
+// })
 
 
 app.get("/*", function (req, res) {
- 
+
   res.sendFile(path.join(__dirname + "/build/index.html"));
 });
 

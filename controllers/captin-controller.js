@@ -131,7 +131,7 @@ const acceptAnOrder = async (req, res) => {
       // console.log("user phone");
       console.log(data.user_Phone);
       const phone = data.user_Phone;
-      const sessiondata = await Sessions.findOne({ userPhone: phone });
+      const sessiondata = await Sessions.find({ userPhone: phone }).sort({'createdAt':-1}).limit(1);
       console.log("session data" + sessiondata);
       const socket_id = sessiondata.userSocketIo;
 
@@ -310,7 +310,7 @@ const updateOrderState = async (req,res) =>{
         console.log(data.user_Phone);
         const phone = data.user_Phone;
 
-        const sessiondata = await Sessions.findOne({ userPhone: phone });
+        const sessiondata = await Sessions.find({ userPhone: phone }).sort({'createdAt':-1}).limit(1);
         if (sessiondata !== null) {
           const socket_id = sessiondata.userSocketIo;
           console.log("session data" + sessiondata);
