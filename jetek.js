@@ -155,7 +155,7 @@ io.of("/users").on("connection", async (socket) => {
   socket.on("messagetocaptin", async function (data) {
     console.log("message to captin event");
     try {
-      const message = await Message.new({
+      const message = await new Message({
         senderPhone: data.userphone,
         receiverPhone: data.captinphone,
         content: data.content,
