@@ -26,7 +26,7 @@ connectDB();
 
 const Order = require("./models/Order");
 const Session = require("./models/sessions");
-const Messages = require("./models/Messages");
+const Message = require("./models/Messages");
 
 // REAL TIME PART
 io.on("connection", (socket) => {
@@ -155,7 +155,7 @@ io.of("/users").on("connection", async (socket) => {
   socket.on("messagetocaptin", async function (data) {
     console.log("message to captin event");
     try {
-      const message = await Messages.new({
+      const message = await Message.new({
         senderPhone: data.userphone,
         receiverPhone: data.captinphone,
         content: data.content,
