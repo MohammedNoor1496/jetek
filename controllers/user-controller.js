@@ -563,8 +563,8 @@ const acceptAnOffer = async (req, res) => {
   // console.log(getUser.phone);
   // console.log(getUser);
 
-  const sessiondata = await Sessions.find({ captinPhone: captin_phone }).sort({ 'createdAt': -1 }).limit(1);;
-  console.log("session data" + sessiondata);
+  const sessiondata = await Sessions.findOne({ captinPhone: captin_phone }).sort({ 'createdAt': -1 }).limit(1);;
+  console.log(" session data" + sessiondata);
 
   if (sessiondata !== null) {
     const socket_id = sessiondata.userSocketIo;
