@@ -4,6 +4,7 @@ const userAuth = require('../utils/auth');
 const router = express.Router()
 var multer = require('multer')
 const  {valudateCancelOrder, cancelOrderValidation} = require('../middlewares/cancelOrder');
+const  {valudateUserRecentOrders, userRecentOrdersValidation} = require('../middlewares/getRecentUserOrders');
 
 // this is a middleware for multer to upload the profile image 
 var storage = multer.diskStorage({
@@ -19,6 +20,7 @@ var upload = multer({ storage: storage })
 
 
 router.post('/createuser', userController.createUser);
+router.post('/getRecentUserOrders',userController.getRecentUserOrders);
 router.post('/confirmUser', userController.confirmUser);
 router.post('/updateUserImage', upload.single('file'), userController.updateUserImage);
 router.get('/getUserProfile', userController.getUserProfile);
