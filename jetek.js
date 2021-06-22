@@ -174,7 +174,7 @@ io.of("/users").on("connection", async (socket) => {
 
           const sessiondata = await Session.find({ 'captinPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
           if (sessiondata !== null) {
-            console.log("session data" + sessiondata);
+            console.log("session data userSocketIo" + sessiondata.userSocketIo);
             const Captinsocketid = sessiondata.userSocketIo;
            
             console.log("message captin socket id " + Captinsocketid);
