@@ -5,6 +5,7 @@ const Order = require("../models/Order");
 const io = require("../socket");
 const User = require("../models/User");
 const Sessions = require("../models/sessions");
+const Messages = require("../models/Messages");
 
 // this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
@@ -113,51 +114,52 @@ const acceptAnOrder = async (req, res) => {
 
   var str = req.get("Authorization");
 
-    const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
-      algorithm: "HS256",
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (getUser == null) {
+    return res.status(400).json({ msg: "you can not access bad token" })
+  }
+  // console.log(getUser.phone);
+  // console.log(getUser);
+  if (getUser) {
+    const data = await Order.findOne({ _id: order_id }).select({
+      user_Phone: 1,
     });
-    // console.log(payload.id);
-    const getUser = await Captin.findOne({ phone: payload.phone });
-    if (getUser == null) {
-      return res.status(400).json({msg:"you can not access bad token"})
+    // console.log(data);
+    // console.log("user phone");
+    console.log(data.user_Phone);
+    const phone = data.user_Phone;
+    const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+    console.log("session data" + sessiondata);
+    const socket_id = sessiondata.userSocketIo;
+    if (sessiondata == null) {
+      return res.status(400).json({ msg: "the user is not connected" });
     }
-    // console.log(getUser.phone);
-    // console.log(getUser);
-    if (getUser) {
-      const data = await Order.findOne({ _id: order_id }).select({
-        user_Phone: 1,
+    console.log("from captin io");
+    // console.log(user_socket_id);
+    if (socket_id !== null) {
+      // console.log(socket_id );
+      console.log("acceptAnOrder user socket id " + socket_id);
+
+      io.getIO().of("/users").to(socket_id).emit("captinoffer", {
+        price: price,
+        captin_phone: getUser.phone,
+        order_id: order_id,
       });
-      // console.log(data);
-      // console.log("user phone");
-      console.log(data.user_Phone);
-      const phone = data.user_Phone;
-      const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({'createdAt':-1}).limit(1);
-      console.log("session data" + sessiondata);
-      const socket_id = sessiondata.userSocketIo;
-
-      console.log("from captin io");
-      // console.log(user_socket_id);
-      if (socket_id !== null) {
-        // console.log(socket_id );
-        console.log("acceptAnOrder user socket id " + socket_id);
-
-        io.getIO().of("/users").to(socket_id).emit("captinoffer", {
-          price: price,
-          captin_phone: getUser.phone,
-          order_id: order_id,
-        });
-        return res.status(200).json({ msg: "your offer has been sent  " });
-      } else {
-        console.log("user socket id not found ");
-        return res.status(400).json({ msg: "the user is not connected" });
-
-      }
+      return res.status(200).json({ msg: "your offer has been sent  " });
     } else {
-      return res.status(400).json({ msg: "you can't access " });
+      console.log("user socket id not found ");
+      return res.status(400).json({ msg: "the user is not connected" });
+
     }
- 
-    res.status(401).json({ msg: "Bad Token" });
-  
+  } else {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+
+
 };
 
 const deleteCaptinForTesting = async (req, res) => {
@@ -251,11 +253,11 @@ const getUserInfo = async (req, res) => {
 };
 
 
-const updateCaptinLocation = async (req,res) =>{
+const updateCaptinLocation = async (req, res) => {
   console.log("updateCaptinLocation");
   console.log(req.body);
   var str = req.get("Authorization");
-  const {lat , lng } = req.body;
+  const { lat, lng } = req.body;
 
   const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
     algorithm: "HS256",
@@ -265,29 +267,29 @@ const updateCaptinLocation = async (req,res) =>{
     return res.status(400).json({ msg: "you can't access captin not found" });
   }
 
- 
-    const update =  await Captin.findByIdAndUpdate(getUser._id, {
-      $set: { lat: lat , lng :lng },
-    }).then(
-      ()=>{
-        return res.status(200).json({msg:"location updated"});
 
-      }
-    ).catch(
-      (err)=>{
-        console.log(err );
-        return res.status(400).json({msg:"location is not  updated"});
+  const update = await Captin.findByIdAndUpdate(getUser._id, {
+    $set: { lat: lat, lng: lng },
+  }).then(
+    () => {
+      return res.status(200).json({ msg: "location updated" });
 
-      }
-    )
-    
+    }
+  ).catch(
+    (err) => {
+      console.log(err);
+      return res.status(400).json({ msg: "location is not  updated" });
+
+    }
+  )
+
 }
 
-const updateOrderState = async (req,res) =>{
+const updateOrderState = async (req, res) => {
   console.log("updateOrderState");
   console.log(req.body);
   var str = req.get("Authorization");
-  const {state , order_id } = req.body;
+  const { state, order_id } = req.body;
 
   const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
     algorithm: "HS256",
@@ -297,47 +299,82 @@ const updateOrderState = async (req,res) =>{
     return res.status(400).json({ msg: "you can't access captin not found" });
   }
 
- 
-    const update =  await Order.findByIdAndUpdate(order_id, {
-      $set: { status: state},
-    }).then(
-      async()=>{
-        const data = await Order.findOne({ _id: order_id }).select({
-          user_Phone: 1,
-        });
-        // console.log(data);
-        // console.log("user phone");
-        console.log(data.user_Phone);
-        const phone = data.user_Phone;
 
-        const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({'createdAt':-1}).limit(1);
-        if (sessiondata !== null) {
-          const socket_id = sessiondata.userSocketIo;
-          console.log("session data" + sessiondata);
-        
-        
-  
+  const update = await Order.findByIdAndUpdate(order_id, {
+    $set: { status: state },
+  }).then(
+    async () => {
+      const data = await Order.findOne({ _id: order_id }).select({
+        user_Phone: 1,
+      });
+      // console.log(data);
+      // console.log("user phone");
+      console.log(data.user_Phone);
+      const phone = data.user_Phone;
+
+      const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+
+      if (sessiondata !== null) {
+        const socket_id = sessiondata.userSocketIo;
+        console.log("session data" + sessiondata);
+
+
+
         console.log("from captin io");
         // console.log(user_socket_id);
-          // console.log(socket_id );
-          console.log("acceptAnOrder user socket id " + socket_id);
-  
-          io.getIO().of("/users").to(socket_id).emit("statuschange", {
-           status:state,
-            order_id: order_id,
-          });
+        // console.log(socket_id );
+        console.log("acceptAnOrder user socket id " + socket_id);
+
+        io.getIO().of("/users").to(socket_id).emit("statuschange", {
+          status: state,
+          order_id: order_id,
+        });
       }
-      return res.status(200).json({msg:"order updated"});
+      return res.status(200).json({ msg: "order updated" });
 
     }
-    ).catch(
-      (err)=>{
-        console.log(err );
-        return res.status(400).json({msg:"order is not  updated"});
+  ).catch(
+    (err) => {
+      console.log(err);
+      return res.status(400).json({ msg: "order is not  updated" });
+    }
+  )
 
-      }
-    )
-    
+}
+
+const getOrderOldChat = async (req,res)=>{
+  console.log("getRecentUserOrders");
+  var str = req.get("Authorization");
+  console.log(req.body);
+
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await Captin.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+  const order = await Order.findById(req.body.order_id);
+
+  if (order.captin_phone == getUser.phone) {
+    const messages= await Messages.find({'orderId':req.body.order_id});
+    if (messages.length ==0) {
+      return res.status(400).json({ msg: "you don't have any old messages  " });
+    }else{
+      return res.status(200).json(messages);
+
+    }
+
+  }else{
+    return res.status(400).json({ msg: "you can't access this order messages " });
+  }
 }
 module.exports = {
   createCaptin,
@@ -347,5 +384,6 @@ module.exports = {
   getNotAcceptedOrders,
   getUserInfo,
   updateCaptinLocation,
-  updateOrderState
+  updateOrderState,
+  getOrderOldChat
 };

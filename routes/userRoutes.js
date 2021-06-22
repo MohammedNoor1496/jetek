@@ -38,7 +38,8 @@ router.post('/getCpInfo', userController.getCpInfo);
 router.post('/acceptAnOffer', userController.acceptAnOffer);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
 router.post('/getOrderInfo', userController.getOrderInfo);
-router.get('/getPrices', userController.getPrices);
+router.post('/getOrderInfo', userController.getOrderInfo);
+router.post('/getOrderOldChat', userController.getOrderOldChat);
 router.post('/cancelOrder',valudateCancelOrder,cancelOrderValidation,userController.cancelOrder);
 
 

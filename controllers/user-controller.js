@@ -12,6 +12,7 @@ const Fee = require("../models/Fee");
 const Sessions = require("../models/sessions");
 const httpRequest = require("https");
 const Captin = require("../models/Captin");
+const Messages = require("../models/Messages");
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -708,6 +709,40 @@ const getRecentUserOrders = async (req, res) => {
 
 };
 
+const getOrderOldChat = async (req,res)=>{
+  console.log("getRecentUserOrders");
+  var str = req.get("Authorization");
+  console.log(req.body);
+
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+  const order = await Order.findById(req.body.order_id);
+
+  if (order.user_Phone == getUser.phone) {
+    const messages= await Messages.find({'orderId':req.body.order_id});
+    if (messages.length ==0) {
+      return res.status(400).json({ msg: "you don't have any old messages  " });
+    }else{
+      return res.status(200).json(messages);
+
+    }
+
+  }else{
+    return res.status(400).json({ msg: "you can't access this order messages " });
+  }
+}
 
 module.exports = {
   createUser,
@@ -730,5 +765,6 @@ module.exports = {
   acceptAnOffer,
   getCaptinInfo,
   getOrderInfo,
-  getRecentUserOrders
+  getRecentUserOrders,
+  getOrderOldChat
 };

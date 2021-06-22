@@ -63,9 +63,48 @@ captins.on("connection", async (socket) => {
   }
   socket.on("arrivetopointofsell", async function (data) {
     console.log(data);
+  })
 
+
+  socket.on("messagetouser", async function (data) {
+    console.log("message to user event");
+    console.log(data);
+    try {
+      const message = await new Message({
+        senderPhone: data.userphone,
+        receiverPhone: data.captinphone,
+        content: data.content,
+        type: data.type,
+        orderId:data.orderId
+      }).save()
+        .then(async(result) => {
+          if (data.type == 1) {
+            theToFind = 'captinPhone'
+          } else if (data.type == 2) {
+            theToFind = 'userPhone'
+          } else {
+            console.log("the typ is not 1 or 2 ");
+          }          
+          const sessiondata = await Session.findOne({ 'userPhone': data.userphone }).sort({ 'createdAt': -1 }).limit(1);
+          console.log("session data userSocketIo" + sessiondata);
+          if (sessiondata !== null) {
+            const Captinsocketid = sessiondata.userSocketIo;
+            console.log("message user socket id " + Captinsocketid);
+
+            io.of("/users").to(Captinsocketid).emit("messagefromcaptin", {
+              userPhone:data.userphone,
+              orderId:data.orderId,
+              content:data.content
+            });
+          }
+        });
+    } catch (error) {
+      console.log(error);
+      return;
+    }
 
   })
+
   socket.on("disconnect", async function () {
     console.log("captin sockect id on disconnection" + socket.id);
     const deleteSession = await Session.deleteOne({ userSocketIo: socket.id })

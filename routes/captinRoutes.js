@@ -34,5 +34,6 @@ router.post("/getNotAcceptedOrders", captinController.getNotAcceptedOrders);
 router.post("/getUserInfo", captinController.getUserInfo);
 router.post("/updateCaptinLocation", captinController.updateCaptinLocation);
 router.post("/updateOrderState", captinController.updateOrderState);
+router.post("/getOrderOldChat", captinController.getOrderOldChat);
 
 module.exports = router;
