@@ -170,13 +170,11 @@ io.of("/users").on("connection", async (socket) => {
             theToFind = 'userPhone'
           } else {
             console.log("the typ is not 1 or 2 ");
-          }
-
+          }          
           const sessiondata = await Session.find({ 'captinPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
+          console.log("session data userSocketIo" + sessiondata);
           if (sessiondata !== null) {
-            console.log("session data userSocketIo" + sessiondata.userSocketIo);
             const Captinsocketid = sessiondata.userSocketIo;
-           
             console.log("message captin socket id " + Captinsocketid);
 
             io.of("/captin").to(Captinsocketid).emit("messagefromuser", {
