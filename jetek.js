@@ -92,7 +92,7 @@ captins.on("connection", async (socket) => {
             console.log("message user socket id " + Captinsocketid);
 
             io.of("/users").to(Captinsocketid).emit("messagefromcaptin", {
-              userPhone:data.userphone,
+              captinphone:data.captinphone,
               orderId:data.orderId,
               content:data.content
             });
