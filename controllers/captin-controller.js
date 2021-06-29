@@ -1,11 +1,12 @@
 const Captin = require("../models/Captin");
 var jwt = require("jsonwebtoken");
 const Order = require("../models/Order");
-
+const ConformOrderFinish = require("../models/ConformOrderFinish");
 const io = require("../socket");
 const User = require("../models/User");
 const Sessions = require("../models/sessions");
 const Messages = require("../models/Messages");
+const httpRequest = require("https");
 
 // this api is for captin register user mobile app isDriver
 const createCaptin = async (req, res) => {
@@ -124,20 +125,31 @@ const acceptAnOrder = async (req, res) => {
   }
   // console.log(getUser.phone);
   // console.log(getUser);
+
+  console.log(getUser.balance);
+
   if (getUser) {
+    if (getUser.balance <= 0) {
+      return res.status(400).json({ msg: "you don't have balance to accept any order" })
+    }
     const data = await Order.findOne({ _id: order_id }).select({
       user_Phone: 1,
     });
+
+    if (!data) {
+      return res.status(400).json({ msg: "order not found" })
+    }
     // console.log(data);
     // console.log("user phone");
     console.log(data.user_Phone);
     const phone = data.user_Phone;
     const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
-    console.log("session data" + sessiondata);
-    const socket_id = sessiondata.userSocketIo;
+
     if (sessiondata == null) {
       return res.status(400).json({ msg: "the user is not connected" });
     }
+    console.log("session data" + sessiondata);
+    const socket_id = sessiondata.userSocketIo;
     console.log("from captin io");
     // console.log(user_socket_id);
     if (socket_id !== null) {
@@ -300,50 +312,197 @@ const updateOrderState = async (req, res) => {
     return res.status(400).json({ msg: "you can't access captin not found" });
   }
 
+  const order = await Order.findById(order_id);
 
-  const update = await Order.findByIdAndUpdate(order_id, {
-    $set: { status: state },
-  }).then(
-    async () => {
-      const data = await Order.findOne({ _id: order_id }).select({
-        user_Phone: 1,
-      });
-      // console.log(data);
-      // console.log("user phone");
-      console.log(data.user_Phone);
-      const phone = data.user_Phone;
-
-      const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
-
-      if (sessiondata !== null) {
-        const socket_id = sessiondata.userSocketIo;
-        console.log("session data" + sessiondata);
+  if (!order) {
+    return res.status(400).json({ msg: "order not found " });
+  }
 
 
+  if (state == 2) {
+    if (order.status !== 1) {
+      return res.status(400).json({ msg: "you can not change to this state " });
+    }
+    const update = await Order.findByIdAndUpdate(order_id, {
+      $set: { status: state },
+    }).then(
+      async () => {
+        const data = await Order.findOne({ _id: order_id }).select({
+          user_Phone: 1,
+        });
+        // console.log(data);
+        // console.log("user phone");
+        console.log(data.user_Phone);
+        const phone = data.user_Phone;
+        const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+        if (sessiondata !== null) {
+          const socket_id = sessiondata.userSocketIo;
+          console.log("session data" + sessiondata);
+          console.log("from captin io");
+          // console.log(user_socket_id);
+          // console.log(socket_id );
+          console.log("acceptAnOrder user socket id " + socket_id);
 
-        console.log("from captin io");
-        // console.log(user_socket_id);
-        // console.log(socket_id );
-        console.log("acceptAnOrder user socket id " + socket_id);
+          io.getIO().of("/users").to(socket_id).emit("changetoarravietopointofsell", {
+            status: state,
+            order_id: order_id,
+          });
+        }
+        return res.status(200).json({ msg: "order updated" });
 
-        io.getIO().of("/users").to(socket_id).emit("statuschange", {
-          status: state,
-          order_id: order_id,
+      }
+    ).catch(
+      (err) => {
+        console.log(err);
+        return res.status(400).json({ msg: "order is not  updated" });
+      }
+    )
+  } else if (state == 3) {
+    if (order.status !== 2) {
+      return res.status(400).json({ msg: "you can not change to this state " });
+    }
+    const update = await Order.findByIdAndUpdate(order_id, {
+      $set: { status: state },
+    }).then(
+      async () => {
+        const data = await Order.findOne({ _id: order_id }).select({
+          user_Phone: 1,
+        });
+        // console.log(data);
+        // console.log("user phone");
+        console.log(data.user_Phone);
+        const phone = data.user_Phone;
+        const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+        if (sessiondata !== null) {
+          const socket_id = sessiondata.userSocketIo;
+          console.log("session data" + sessiondata);
+          console.log("from captin io");
+          // console.log(user_socket_id);
+          // console.log(socket_id );
+          console.log("acceptAnOrder user socket id " + socket_id);
+
+          io.getIO().of("/users").to(socket_id).emit("changetoonthewaytouser", {
+            status: state,
+            order_id: order_id,
+          });
+        }
+        return res.status(200).json({ msg: "order updated" });
+
+      }
+    ).catch(
+      (err) => {
+        console.log(err);
+        return res.status(400).json({ msg: "order is not  updated" });
+      }
+    )
+  } else if (state == 4) {
+    if (order.status !==3) {
+      return res.status(400).json({ msg: "you can not change to this state " });
+    }
+    const update = await Order.findByIdAndUpdate(order_id, {
+      $set: { status: state },
+    }).then(
+      async () => {
+        const data = await Order.findOne({ _id: order_id }).select({
+          user_Phone: 1,
+        });
+        // console.log(data);
+        // console.log("user phone");
+        console.log(data.user_Phone);
+        const phone = data.user_Phone;
+        const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+        if (sessiondata !== null) {
+          const socket_id = sessiondata.userSocketIo;
+          console.log("session data" + sessiondata);
+          console.log("from captin io");
+          // console.log(user_socket_id);
+          // console.log(socket_id );
+          console.log("acceptAnOrder user socket id " + socket_id);
+
+          io.getIO().of("/users").to(socket_id).emit("changetouserlocation", {
+            status: state,
+            order_id: order_id,
+          });
+        }
+        return res.status(200).json({ msg: "order updated" });
+
+      }
+    ).catch(
+      (err) => {
+        console.log(err);
+        return res.status(400).json({ msg: "order is not  updated" });
+      }
+    )
+  } else if (state == 5) {
+    if (order.status !== 4) {
+      return res.status(400).json({ msg: "you can not change to this state " });
+    }
+    var otp = Math.floor(1000 + Math.random() * 9000);
+    console.log(otp);
+    // console.log(order);
+    const number = order.user_Phone;
+    const phone = `966${number}`;
+    console.log(phone);
+
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const data = JSON.stringify({
+      userName: process.env.SMS_USER_NAME,
+      numbers: phone,
+      userSender: "jetek",
+      apiKey: process.env.SMS_API_KEY,
+      msg: ` هلا من جيتك 
+      نشكرك على استخدامك تطبيقنا نرجو منك استخدام هذا الرقم في اغلاق   الطلب ${otp}`,
+    });
+
+    const request = httpRequest.request(
+      "https://www.msegat.com/gw/sendsms.php",
+      options,
+      (response) => {
+        console.log("Status", response.statusCode);
+        console.log("Headers", response.headers);
+        let responseData = "";
+        // console.log(response);
+        if (res.statusCode == 200) {
+          return res.status(201).json({ msg: "otp sent to the user" });
+        } else {
+          return res.status(400).json({ msg: "some thing went wronge" });
+        }
+        response.on("data", (dataChunk) => {
+          responseData += dataChunk;
+        });
+        response.on("end", () => {
+          console.log("Response: ", responseData);
         });
       }
-      return res.status(200).json({ msg: "order updated" });
+    );
 
+    request.on("error", (error) => console.log("ERROR", error));
+    const saveandsend = async () => {
+      const saveOtp = await new ConformOrderFinish({
+        orderId: order_id,
+        sentOtp: otp,
+      })
+        .save()
+        .then(() => {
+          request.write(data);
+          request.end();
+        }).catch(
+          (err) => {
+            console.log(err);
+          }
+        )
     }
-  ).catch(
-    (err) => {
-      console.log(err);
-      return res.status(400).json({ msg: "order is not  updated" });
-    }
-  )
+    saveandsend()
 
+  }
 }
 
-const getOrderOldChat = async (req,res)=>{
+const getOrderOldChat = async (req, res) => {
   console.log("getRecentUserOrders");
   var str = req.get("Authorization");
   console.log(req.body);
@@ -365,18 +524,20 @@ const getOrderOldChat = async (req,res)=>{
   const order = await Order.findById(req.body.order_id);
 
   if (order.captin_phone == getUser.phone) {
-    const messages= await Messages.find({'orderId':req.body.order_id});
-    if (messages.length ==0) {
+    const messages = await Messages.find({ 'orderId': req.body.order_id });
+    if (messages.length == 0) {
       return res.status(400).json({ msg: "you don't have any old messages  " });
-    }else{
+    } else {
       return res.status(200).json(messages);
 
     }
 
-  }else{
+  } else {
     return res.status(400).json({ msg: "you can't access this order messages " });
   }
 }
+
+
 module.exports = {
   createCaptin,
   acceptAnOrder,
@@ -388,3 +549,4 @@ module.exports = {
   updateOrderState,
   getOrderOldChat
 };
+

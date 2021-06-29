@@ -13,6 +13,7 @@ const Sessions = require("../models/sessions");
 const httpRequest = require("https");
 const Captin = require("../models/Captin");
 const Messages = require("../models/Messages");
+const ConformOrderFinish = require("../models/ConformOrderFinish");
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -729,7 +730,9 @@ const getOrderOldChat = async (req,res)=>{
   console.log(getUser.phone);
 
   const order = await Order.findById(req.body.order_id);
-
+  if (!order) {
+    return res.status(400).json({ msg: "order not found   " });
+  }
   if (order.user_Phone == getUser.phone) {
     const messages= await Messages.find({'orderId':req.body.order_id});
     if (messages.length ==0) {
@@ -744,6 +747,87 @@ const getOrderOldChat = async (req,res)=>{
   }
 }
 
+
+const finishOrder = async (req,res)=>{
+  console.log("finishOrder");
+  console.log(req.body);
+  const {orderId,otp} = req.body;
+  var str = req.get("Authorization");
+
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    return res.status(400).json({ msg: "order not found   " });
+  }
+  
+  
+  const update = await Order.findByIdAndUpdate(orderId, {
+    $set: { status: 5 },
+  }).then(
+    async () => {
+      const data = await Order.findOne({ _id: orderId }).select({
+        captin_phone: 1,
+      });
+      // console.log(data);
+      // console.log("user phone");
+      console.log(data.captin_phone);
+      const phone = data.captin_phone;
+      const sessiondata = await Sessions.findOne({ captinPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+     console.log("sessiondata"+sessiondata);
+      if (sessiondata !== null) {
+        const socket_id = sessiondata.userSocketIo;
+        console.log("session data" + sessiondata);
+        console.log("from captin socket id is "+socket_id + "from finish order");
+        // console.log(user_socket_id);
+        // console.log(socket_id );
+        console.log("acceptAnOrder user socket id " + socket_id);
+
+        io.getIO().of("/captins").to(socket_id).emit("theorderisfinished", {
+          status: 6,
+          order_id: orderId,
+        });
+      }
+    }
+  ).catch(
+    (err) => {
+      console.log(err);
+      return res.status(400).json({ msg: "order is not  finished" });
+    }
+  )
+
+
+
+    const conformation = await ConformOrderFinish.findOne({
+      orderId: orderId,
+      sentOtp: otp,
+    });
+    if (conformation) {
+      
+      // console.log(token);
+      const deleteOtp = await ConformOrderFinish.findByIdAndUpdate(conformation._id, {
+        $set: { sentOtp: "" },
+      });
+      res.status(200).json({msg:"order fininsed"});
+    }
+
+    if (!conformation) return res.status(400).json({ msg: "the order is not finished " });
+
+
+  
+}
 module.exports = {
   createUser,
   confirmUser,
@@ -766,5 +850,6 @@ module.exports = {
   getCaptinInfo,
   getOrderInfo,
   getRecentUserOrders,
-  getOrderOldChat
+  getOrderOldChat,
+  finishOrder
 };
