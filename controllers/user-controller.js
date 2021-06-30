@@ -710,7 +710,7 @@ const getRecentUserOrders = async (req, res) => {
 
 };
 
-const getOrderOldChat = async (req,res)=>{
+const getOrderOldChat = async (req, res) => {
   console.log("getRecentUserOrders");
   var str = req.get("Authorization");
   console.log(req.body);
@@ -734,24 +734,24 @@ const getOrderOldChat = async (req,res)=>{
     return res.status(400).json({ msg: "order not found   " });
   }
   if (order.user_Phone == getUser.phone) {
-    const messages= await Messages.find({'orderId':req.body.order_id});
-    if (messages.length ==0) {
+    const messages = await Messages.find({ 'orderId': req.body.order_id });
+    if (messages.length == 0) {
       return res.status(400).json({ msg: "you don't have any old messages  " });
-    }else{
+    } else {
       return res.status(200).json(messages);
 
     }
 
-  }else{
+  } else {
     return res.status(400).json({ msg: "you can't access this order messages " });
   }
 }
 
 
-const finishOrder = async (req,res)=>{
+const finishOrder = async (req, res) => {
   console.log("finishOrder");
   console.log(req.body);
-  const {orderId,otp} = req.body;
+  const { orderId, otp } = req.body;
   var str = req.get("Authorization");
 
 
@@ -772,8 +772,14 @@ const finishOrder = async (req,res)=>{
   if (!order) {
     return res.status(400).json({ msg: "order not found   " });
   }
-  
-  
+
+  console.log(order.fee + "fee");
+
+
+
+
+
+
   const update = await Order.findByIdAndUpdate(orderId, {
     $set: { status: 5 },
   }).then(
@@ -783,20 +789,20 @@ const finishOrder = async (req,res)=>{
       });
       // console.log(data);
       // console.log("user phone");
-      console.log(data.captin_phone);
+      console.log(data);
       const phone = data.captin_phone;
       const sessiondata = await Sessions.findOne({ captinPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
-     console.log("sessiondata"+sessiondata);
+      console.log("sessiondata" + sessiondata);
       if (sessiondata !== null) {
         const socket_id = sessiondata.userSocketIo;
         console.log("session data" + sessiondata);
-        console.log("from captin socket id is "+socket_id + "from finish order");
+        console.log("from captin socket id is " + socket_id + "from finish order");
         // console.log(user_socket_id);
         // console.log(socket_id );
         console.log("acceptAnOrder user socket id " + socket_id);
 
         io.getIO().of("/captins").to(socket_id).emit("theorderisfinished", {
-          status: 6,
+          status: 5,
           order_id: orderId,
         });
       }
@@ -807,26 +813,65 @@ const finishOrder = async (req,res)=>{
       return res.status(400).json({ msg: "order is not  finished" });
     }
   )
+  const conformation = await ConformOrderFinish.findOne({
+    orderId: orderId,
+    sentOtp: otp,
+  });
+  if (conformation) {
 
-
-
-    const conformation = await ConformOrderFinish.findOne({
-      orderId: orderId,
-      sentOtp: otp,
+    // console.log(token);
+    const deleteOtp = await ConformOrderFinish.findByIdAndUpdate(conformation._id, {
+      $set: { sentOtp: "" },
     });
-    if (conformation) {
-      
-      // console.log(token);
-      const deleteOtp = await ConformOrderFinish.findByIdAndUpdate(conformation._id, {
-        $set: { sentOtp: "" },
-      });
-      res.status(200).json({msg:"order fininsed"});
+
+    //calculate 10 % of the fee
+
+    const precentageoffee = order.fee / 10;
+    console.log(precentageoffee + "precentageoffee");
+
+    //update user balance 
+    console.log("user phone " + order.user_Phone);
+    const getUser = await User.findOne({ phone: order.user_Phone });
+    const getCaptin = await Captin.findOne({ phone: order.captin_phone });
+    const newBalance = getUser.balance + precentageoffee;
+    const updateBalance = (getCaptin.balance  - precentageoffee);
+    console.log("user new balance " + newBalance);
+    console.log("user old balance " + getUser.balance);
+    console.log("captin new balance " + updateBalance);
+    console.log("captin old balance " + getCaptin.balance);
+    const updateUserBalance = async () => {
+      await User.findByIdAndUpdate(
+        { _id: getUser.id },
+        {
+          $set: {
+            balance: newBalance,
+          },
+        }
+      );
+    }
+    console.log(updateUserBalance);
+    const updateCaptinBalance = async () => {
+      await Captin.findByIdAndUpdate(
+        { _id: getCaptin.id },
+        {
+          $set: {
+            balance: updateBalance,
+          },
+        }
+      );
     }
 
-    if (!conformation) return res.status(400).json({ msg: "the order is not finished " });
+    updateUserBalance();
+    updateCaptinBalance();
+    //update captin balance 
+    console.log(" captin phone " + order.captin_phone);
+    return res.status(200).json({ msg: "order fininsed" });
+  }
+
+  if (!conformation) return res.status(400).json({ msg: "the order is not finished " });
 
 
-  
+
 }
 module.exports = {
   createUser,

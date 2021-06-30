@@ -123,6 +123,10 @@ const acceptAnOrder = async (req, res) => {
   if (getUser == null) {
     return res.status(400).json({ msg: "you can not access bad token" })
   }
+  if (getUser.balance < 0) {
+    return res.status(400).json({ msg: "you don't have enough balance to present an offer" })
+  }
+
   // console.log(getUser.phone);
   // console.log(getUser);
 

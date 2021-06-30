@@ -6,7 +6,7 @@ const userSchema = new Schema({
     firstName: { type: String, require: true },
     lastName: { type: String, require: true },
     phone: { type: Number, require: true, unique: true },
-    balance: { type: Number, require: true },
+    balance: { type: Number, default:0,require: true },
     photo: { type: String, require: false },
     birthday: { type: Date, require: true },
     confirmed: { type: Boolean, require: true, default: true },
