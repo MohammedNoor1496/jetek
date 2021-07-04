@@ -347,7 +347,7 @@ const updateOrderState = async (req, res) => {
           // console.log(socket_id );
           console.log("acceptAnOrder user socket id " + socket_id);
 
-          io.getIO().of("/users").to(socket_id).emit("changetoarravietopointofsell", {
+          io.getIO().of("/users").to(socket_id).emit("changeorderstatus", {
             status: state,
             order_id: order_id,
           });
@@ -385,7 +385,7 @@ const updateOrderState = async (req, res) => {
           // console.log(socket_id );
           console.log("acceptAnOrder user socket id " + socket_id);
 
-          io.getIO().of("/users").to(socket_id).emit("changetoonthewaytouser", {
+          io.getIO().of("/users").to(socket_id).emit("changeorderstatus", {
             status: state,
             order_id: order_id,
           });
@@ -423,7 +423,7 @@ const updateOrderState = async (req, res) => {
           // console.log(socket_id );
           console.log("acceptAnOrder user socket id " + socket_id);
 
-          io.getIO().of("/users").to(socket_id).emit("changetouserlocation", {
+          io.getIO().of("/users").to(socket_id).emit("changeorderstatus", {
             status: state,
             order_id: order_id,
           });
@@ -502,7 +502,28 @@ const updateOrderState = async (req, res) => {
         )
     }
     saveandsend()
+    const data = await Order.findOne({ _id: order_id }).select({
+      user_Phone: 1,
+    });
+    // console.log(data);
+    // console.log("user phone");
+    console.log(data.user_Phone);
+    const phone = data.user_Phone;
+    const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+    if (sessiondata !== null) {
+      const socket_id = sessiondata.userSocketIo;
+      console.log("session data" + sessiondata);
+      console.log("from captin io");
+      // console.log(user_socket_id);
+      // console.log(socket_id );
+      console.log("acceptAnOrder user socket id " + socket_id);
 
+      io.getIO().of("/users").to(socket_id).emit("finishorder", {
+        status: state,
+        order_id: order_id,
+      });
+    }
+    return res.status(200).json({ msg: "order updated" });
   }
 }
 
