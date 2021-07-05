@@ -1,8 +1,6 @@
 const User = require("../models/User");
 var jwt = require("jsonwebtoken");
-const { number } = require("joi");
 const ConformAccount = require("../models/ConformAccount ");
-const { Long } = require("bson");
 const SpAdmin = require("../models/SpAdmin");
 const spCatogarie = require("../models/SpCatogary");
 const Prouduct = require("../models/Products");

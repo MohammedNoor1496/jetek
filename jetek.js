@@ -61,9 +61,7 @@ captins.on("connection", async (socket) => {
     console.log(error);
     return;
   }
-  socket.on("arrivetopointofsell", async function (data) {
-    console.log(data);
-  })
+ 
 
 
   socket.on("messagetouser", async function (data) {
@@ -91,7 +89,7 @@ captins.on("connection", async (socket) => {
             const Captinsocketid = sessiondata.userSocketIo;
             console.log("message user socket id " + Captinsocketid);
 
-            io.of("/users").to(Captinsocketid).emit("messagefromuser", {
+            io.of("/users").to(Captinsocketid).emit("messagefromcaptin", {
               captinphone:data.captinphone,
               orderId:data.orderId,
               content:data.content
