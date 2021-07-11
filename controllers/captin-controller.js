@@ -508,8 +508,8 @@ const updateOrderState = async (req, res) => {
     // console.log(data);
     // console.log("user phone");
     console.log(orderdata.user_Phone);
-    const phone = orderdata.user_Phone;
-    const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
+    const phoneNumber = orderdata.user_Phone;
+    const sessiondata = await Sessions.findOne({ userPhone: phoneNumber }).sort({ 'createdAt': -1 }).limit(1);
     if (sessiondata !== null) {
       const socket_id = sessiondata.userSocketIo;
       console.log("session data" + sessiondata);
