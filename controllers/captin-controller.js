@@ -502,13 +502,13 @@ const updateOrderState = async (req, res) => {
         )
     }
     saveandsend()
-    const data = await Order.findOne({ _id: order_id }).select({
+    const orderdata = await Order.findOne({ _id: order_id }).select({
       user_Phone: 1,
     });
     // console.log(data);
     // console.log("user phone");
-    console.log(data.user_Phone);
-    const phone = data.user_Phone;
+    console.log(orderdata.user_Phone);
+    const phone = orderdata.user_Phone;
     const sessiondata = await Sessions.findOne({ userPhone: phone }).sort({ 'createdAt': -1 }).limit(1);
     if (sessiondata !== null) {
       const socket_id = sessiondata.userSocketIo;
