@@ -208,13 +208,13 @@ io.of("/users").on("connection", async (socket) => {
           } else {
             console.log("the typ is not 1 or 2 ");
           }          
-          const sessiondata = await Session.findOne({ 'captinPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
+          const sessiondata = await Session.findOne({ 'userPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
           console.log("session data userSocketIo" + sessiondata);
           if (sessiondata !== null) {
             const captinsocketid = sessiondata.userSocketIo;
             console.log("message captin socket id " + captinsocketid);
 
-            captins.to(captinsocketid).emit("messagefromuser", {
+            io.of("/users").to(captinsocketid).emit("messagefromuser", {
               userphone:data.userphone,
               orderId:data.orderId,
               content:data.content
