@@ -212,7 +212,7 @@ io.of("/users").on("connection", async (socket) => {
           console.log("session data userSocketIo" + sessiondata);
           if (sessiondata !== null) {
             const Captinsocketid = sessiondata.userSocketIo;
-            console.log("message captin socket id " + Captinsocketid);
+            console.log("message from user to  captin socket id " + Captinsocketid);
             console.log("data"+data);
             io.of("/captins").to(Captinsocketid).emit("messagefromuser", {
               userPhone:data.userphone,
