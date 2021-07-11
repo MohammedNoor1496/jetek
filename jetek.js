@@ -214,7 +214,7 @@ io.of("/users").on("connection", async (socket) => {
             const captinsocketid = sessiondata.userSocketIo;
             console.log("message captin socket id " + captinsocketid);
 
-            io.of("/captins").to(captinsocketid).emit("messagefromuser", {
+            captins.to(captinsocketid).emit("messagefromuser", {
               userphone:data.userphone,
               orderId:data.orderId,
               content:data.content
