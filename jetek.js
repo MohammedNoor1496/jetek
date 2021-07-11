@@ -217,7 +217,8 @@ io.of("/users").on("connection", async (socket) => {
             captins.to(Captinsocketid).emit("messagefromuser", {
               userPhone:data.userphone,
               orderId:data.orderId,
-              content:data.content
+              content:data.content,
+              type: data.type,
             });
           }
         });
