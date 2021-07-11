@@ -211,14 +211,13 @@ io.of("/users").on("connection", async (socket) => {
           const sessiondata = await Session.findOne({ 'captinPhone': data.captinphone }).sort({ 'createdAt': -1 }).limit(1);
           console.log("session data userSocketIo" + sessiondata);
           if (sessiondata !== null) {
-            const Captinsocketid = sessiondata.userSocketIo;
-            console.log("message captin socket id " + Captinsocketid);
+            const captinsocketid = sessiondata.userSocketIo;
+            console.log("message captin socket id " + captinsocketid);
 
-            captins.to(Captinsocketid).emit("messagefromuser", {
-              userPhone:data.userphone,
+            io.of("/captins").to(captinsocketid).emit("messagefromuser", {
+              userphone:data.userphone,
               orderId:data.orderId,
-              content:data.content,
-              type: data.type,
+              content:data.content
             });
           }
         });
