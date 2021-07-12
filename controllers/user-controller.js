@@ -831,8 +831,8 @@ const finishOrder = async (req, res) => {
     console.log("user phone " + order.user_Phone);
     const getUser = await User.findOne({ phone: order.user_Phone });
     const getCaptin = await Captin.findOne({ phone: order.captin_phone });
-    const newBalance = getUser.balance + precentageoffee;
-    const updateBalance = (getCaptin.balance  - precentageoffee);
+    const newBalance = Math.round(getUser.balance + precentageoffee);
+    const updateBalance = Math.round(getCaptin.balance  - precentageoffee);
     console.log("user new balance " + newBalance);
     console.log("user old balance " + getUser.balance);
     console.log("captin new balance " + updateBalance);
@@ -871,6 +871,67 @@ const finishOrder = async (req, res) => {
 
 
 }
+
+const payFromBalance = async (req,res)=>{
+  console.log("payFromBalance");
+  console.log(req.body);
+
+  var str = req.get("Authorization");
+
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+
+  const {orderId,credit}= req.body;
+
+  if(!orderId || !credit){
+    return res.status(403).json({ msg: "back end validation feialed " });
+
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    return res.status(400).json({ msg: "order is  not found   " });
+  }
+  console.log(getUser.balance);
+  if(getUser.balance < credit){
+    return res.status(400).json({ msg: "your credit is not enough" });
+  }
+
+  const newBalance = Math.round(getUser.balance - credit) ;
+  console.log(Math.round(newBalance));
+  const updateUserBalance = async () => {
+    await User.findByIdAndUpdate(
+      { _id: getUser.id },
+      {
+        $set: {
+          balance: newBalance,
+        },
+      }
+    );
+  }
+
+  updateUserBalance();
+
+  if(updateUserBalance){
+    return res.status(200).json({ msg: "you have successfully paid" });
+  }else{
+    return res.status(400).json({ msg: "some this went wronge " });
+  }
+}
+
+
 module.exports = {
   createUser,
   confirmUser,
@@ -894,5 +955,6 @@ module.exports = {
   getOrderInfo,
   getRecentUserOrders,
   getOrderOldChat,
-  finishOrder
+  finishOrder,
+  payFromBalance
 };
