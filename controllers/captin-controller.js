@@ -471,9 +471,7 @@ const updateOrderState = async (req, res) => {
         console.log("Headers", response.headers);
         let responseData = "";
         // console.log(response);
-        if (res.statusCode == 200) {
-          return res.status(201).json({ msg: "otp sent to the user" });
-        } else {
+        if (res.statusCode !== 200) {
           return res.status(400).json({ msg: "some thing went wronge" });
         }
         response.on("data", (dataChunk) => {
