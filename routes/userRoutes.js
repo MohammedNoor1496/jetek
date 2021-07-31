@@ -39,8 +39,11 @@ router.post('/acceptAnOffer', userController.acceptAnOffer);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
 router.post('/finishOrder', userController.finishOrder);
 router.post('/getOrderInfo', userController.getOrderInfo);
+router.post('/serachForaProduct', userController.serachForaProduct);
+router.post('/serachForaPointOfSell', userController.serachForaPointOfSell);
 router.post('/payFromBalance', userController.payFromBalance);
 router.post('/getOrderInfo', userController.getOrderInfo);
+router.post('/createSchaduleOrder', userController.createSchaduleOrder);
 router.post('/getOrderOldChat', userController.getOrderOldChat);
 router.post('/cancelOrder',valudateCancelOrder,cancelOrderValidation,userController.cancelOrder);
 

@@ -3,6 +3,7 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 var io = require("./socket").init(server);
+const schedule = require('node-schedule');
 
 var compression = require("compression");
 const cors = require("cors");
@@ -301,10 +302,15 @@ app.use("/admin", adminRoutes);
 // Sub Admin Routes
 app.use("/cpAdmin", subAdminRoutes);
 
-// app.use("/test", async (req, res) => {
-//   const socketID = await Order.find({ 'user_Phone': req.body.uf }).sort({ 'createdAt': -1 }).limit(1)
-//   console.log(socketID);
-// })
+app.use("/test", async (req, res) => {
+  console.log(req.body);
+  const date = new Date(req.body.date);
+  console.log(date.getHours());
+  const job = schedule.scheduleJob(date, function(){
+    return res.status(200).json({msg:"done"})
+    console.log('this is the action  '+new Date().toString());
+  });
+})
 
 
 app.get("/*", function (req, res) {

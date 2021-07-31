@@ -12,6 +12,7 @@ const httpRequest = require("https");
 const Captin = require("../models/Captin");
 const Messages = require("../models/Messages");
 const ConformOrderFinish = require("../models/ConformOrderFinish");
+const schedule = require('node-schedule');
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -832,7 +833,7 @@ const finishOrder = async (req, res) => {
     const getUser = await User.findOne({ phone: order.user_Phone });
     const getCaptin = await Captin.findOne({ phone: order.captin_phone });
     const newBalance = Math.round(getUser.balance + precentageoffee);
-    const updateBalance = Math.round(getCaptin.balance  - precentageoffee);
+    const updateBalance = Math.round(getCaptin.balance - precentageoffee);
     console.log("user new balance " + newBalance);
     console.log("user old balance " + getUser.balance);
     console.log("captin new balance " + updateBalance);
@@ -872,7 +873,7 @@ const finishOrder = async (req, res) => {
 
 }
 
-const payFromBalance = async (req,res)=>{
+const payFromBalance = async (req, res) => {
   console.log("payFromBalance");
   console.log(req.body);
 
@@ -893,9 +894,9 @@ const payFromBalance = async (req,res)=>{
   console.log(getUser.phone);
 
 
-  const {orderId,credit}= req.body;
+  const { orderId, credit } = req.body;
 
-  if(!orderId || !credit){
+  if (!orderId || !credit) {
     return res.status(403).json({ msg: "back end validation feialed " });
 
   }
@@ -905,11 +906,11 @@ const payFromBalance = async (req,res)=>{
     return res.status(400).json({ msg: "order is  not found   " });
   }
   console.log(getUser.balance);
-  if(getUser.balance < credit){
+  if (getUser.balance < credit) {
     return res.status(400).json({ msg: "your credit is not enough" });
   }
 
-  const newBalance = Math.round(getUser.balance - credit) ;
+  const newBalance = Math.round(getUser.balance - credit);
   console.log(Math.round(newBalance));
   const updateUserBalance = async () => {
     await User.findByIdAndUpdate(
@@ -924,13 +925,106 @@ const payFromBalance = async (req,res)=>{
 
   updateUserBalance();
 
-  if(updateUserBalance){
+  if (updateUserBalance) {
     return res.status(200).json({ msg: "you have successfully paid" });
-  }else{
+  } else {
     return res.status(400).json({ msg: "some this went wronge " });
   }
 }
 
+const createSchaduleOrder = async (req, res) => {
+  console.log("createSchaduleOrder");
+  console.log(req.body);
+  const sendDate = new Date(req.body.sendDate);
+  console.log(sendDate);
+  const order = await new Order({
+    user_Phone: req.body.user_Phone,
+    sell_point_id: req.body.sell_point_id,
+    products_id: req.body.products_id,
+    destination_long: req.body.destination_long,
+    destination_lat: req.body.destination_lat,
+    origin_long: req.body.origin_long,
+    origin_lat: req.body.origin_lat,
+    fee: req.body.fee,
+    payment: req.body.payment,
+    paid: req.body.paid,
+    distance: req.body.distance,
+  })
+    .save()
+    .then((result) => {
+      var REMINDERS = [];
+      REMINDERS.push(schedule.scheduleJob(sendDate, function(){
+        console.log('sendDate '+new Date().toString());
+      }));
+      const date2 =  new Date(sendDate.setMinutes(sendDate.getMinutes()-1));
+      REMINDERS.push(schedule.scheduleJob(date2, function(){
+        console.log('befor sendDate'+new Date().toString());
+      }));
+      console.log("Order created ");
+      return res.status(200).json({ msg: "done" })
+     
+    })
+}
+
+const serachForaProduct = async (req,res)=>{
+  console.log("serachForaProduct");
+  console.log(req.body);
+
+  var str = req.get("Authorization");
+
+  const key = req.body.key;
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+  const getProduct  = await Prouduct.find({ name:  new RegExp(key , 'i') });
+  if (!getProduct) {
+    return res.status(400).json({ msg: "لم يتم العثور على المنتج " });
+  }else{
+    return res.status(200).json(getProduct);
+
+  }
+}
+
+const serachForaPointOfSell = async (req,res)=>{
+  console.log("serachForaPointOfSell");
+  console.log(req.body);
+
+  var str = req.get("Authorization");
+
+  const key = req.body.key;
+
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+
+  const getSp  = await SpAdmin.find({ cpName:  new RegExp(key , 'i') });
+  if (!getSp) {
+    return res.status(400).json({ msg: "لم يتم العثور على نقطة البيع  " });
+  }else{
+    return res.status(200).json(getSp);
+
+  }
+}
 
 module.exports = {
   createUser,
@@ -956,5 +1050,8 @@ module.exports = {
   getRecentUserOrders,
   getOrderOldChat,
   finishOrder,
-  payFromBalance
+  payFromBalance,
+  createSchaduleOrder,
+  serachForaProduct,
+  serachForaPointOfSell
 };
