@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const coupon = new Schema({
-    coponeText:{
+const UsedCoupon = new Schema({
+    useId:{
         type: String,
         required: true,
     },
-    disPrecintege:{
+    couponId:{
         type: String,
-        default:0.05,
+        require:true,
     },
 }, { timestamps: true })
-module.exports = mongoose.model('Coupon', coupon);
+module.exports = mongoose.model('UsedCoupon', UsedCoupon);

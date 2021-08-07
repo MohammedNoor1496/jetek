@@ -36,6 +36,7 @@ router.post('/getSpPeoducts', userController.getSpPeoducts);
 router.post('/getProductInfo', userController.getProductInfo);
 router.post('/getCpInfo', userController.getCpInfo);
 router.post('/acceptAnOffer', userController.acceptAnOffer);
+router.post('/useaCoupon', userController.useaCoupon);
 router.post('/getCaptinInfo', userController.getCaptinInfo);
 router.post('/finishOrder', userController.finishOrder);
 router.post('/getOrderInfo', userController.getOrderInfo);

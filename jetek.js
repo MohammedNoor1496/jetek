@@ -28,6 +28,7 @@ connectDB();
 const Order = require("./models/Order");
 const Session = require("./models/sessions");
 const Message = require("./models/Messages");
+const Coupons = require("./models/Coupons");
 
 // REAL TIME PART
 io.on("connection", (socket) => {
@@ -304,15 +305,22 @@ app.use("/cpAdmin", subAdminRoutes);
 
 app.use("/test", async (req, res) => {
   console.log(req.body);
-  const date = new Date(req.body.date);
-  console.log(date.getHours());
-  const job = schedule.scheduleJob(date, function(){
-    return res.status(200).json({msg:"done"})
-    console.log('this is the action  '+new Date().toString());
-  });
+  try {
+    const useCoupon = await new Coupons({
+      coponeText:req.body.coponeText,
+      disPrecintege: req.body.disPrecintege,
+    })
+      .save()
+      .then(() => {
+        console.log(`coupon`);
+        return res.status(200).json("done")
+      });
+  } catch (error) {
+    console.log(error);
+    return
+  }
+
 })
-
-
 app.get("/*", function (req, res) {
 
   res.sendFile(path.join(__dirname + "/build/index.html"));

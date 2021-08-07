@@ -13,6 +13,8 @@ const Captin = require("../models/Captin");
 const Messages = require("../models/Messages");
 const ConformOrderFinish = require("../models/ConformOrderFinish");
 const schedule = require('node-schedule');
+const Coupons = require("../models/Coupons");
+const usedCoupons = require("../models/usedCoupons");
 
 const userLogin = async (req, res) => {
   console.log("userLogin");
@@ -966,6 +968,54 @@ const createSchaduleOrder = async (req, res) => {
     })
 }
 
+const useaCoupon = async (req,res)=>{
+  console.log("useaCoupon");
+  console.log(req.body);
+  const {couponText}= req.body ; 
+  var str = req.get("Authorization");
+  if (!str) {
+    res.status(401).json({ msg: "no token provided Token" });
+  }
+  const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
+    algorithm: "HS256",
+  });
+  // console.log(payload.id);
+  const getUser = await User.findOne({ phone: payload.phone });
+  if (!getUser) {
+    return res.status(400).json({ msg: "you can't access " });
+  }
+  console.log(getUser.phone);
+  const getCoupon = await Coupons.findOne({ coponeText :couponText });
+  if (!getCoupon) {
+    return res.status(400).json({ msg: "Coupon not found" });
+  }
+
+  const getIfUserUseCoupon = await usedCoupons.findOne({
+    useId:getUser._id,
+    couponId: getCoupon._id,
+  });
+  if (getIfUserUseCoupon) {
+    return res.status(400).json({ msg: "Sorry you used this coupon " });
+  }
+
+  try {
+    const userCoupon = await new usedCoupons({
+      useId: getUser._id,
+      couponId: getCoupon._id,
+    })
+      .save()
+      .then(() => {
+        console.log(`user ${getUser.name} used ${getCoupon._id} as a coupon`);
+        return res.status(200).json(getCoupon)
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(403).json({ msg: error });
+  }
+
+}
+
+
 const serachForaProduct = async (req,res)=>{
   console.log("serachForaProduct");
   console.log(req.body);
@@ -1053,5 +1103,6 @@ module.exports = {
   payFromBalance,
   createSchaduleOrder,
   serachForaProduct,
-  serachForaPointOfSell
+  serachForaPointOfSell,
+  useaCoupon
 };
