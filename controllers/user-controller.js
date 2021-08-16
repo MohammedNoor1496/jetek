@@ -35,7 +35,9 @@ const userLogin = async (req, res) => {
 const verifyPhoneNumber = async (req, res) => {
   console.log("verifyPhoneNumber");
   console.log(req.body);
-
+  if (!req.body.number || !req.body.newuser) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   if (req.body.newuser == true) {
     const user = await User.findOne({ phone: req.body.number });
     if (user) return res.status(400).json({ msg: "user already exists " });
@@ -112,7 +114,9 @@ const createUser = async (req, res) => {
 
   const { firstName, lastName, number, birthday } = req.body;
   // console.log(firstName);
-
+  if (!firstName || !lastName || !number || !birthday) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   var str = req.get("Authorization");
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
@@ -150,6 +154,9 @@ const createUser = async (req, res) => {
 const confirmUser = async (req, res) => {
   console.log("confirmUser");
   console.log(req.body);
+  if (!number || !otp) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   try {
     const user = await ConformAccount.findOne({
       phone: req.body.number,
@@ -182,6 +189,7 @@ const getUserProfile = async (req, res) => {
   console.log("getUserProfile");
   console.log(req.body);
   var str = req.get("Authorization");
+
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
       algorithm: "HS256",
@@ -236,7 +244,9 @@ const updateUserPrifile = async (req, res) => {
   const { firstName, lastName, birthday } = req.body;
   console.log("updateUserPrifile");
   console.log(req.body);
-
+  if (!firstName || !lastName || !birthday) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   var str = req.get("Authorization");
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
@@ -273,6 +283,9 @@ const updateAddress = async (req, res) => {
   console.log("updateHomeAddress");
   console.log(req.body);
   const { lat, lng, isHome } = req.body;
+  if (!lat || !lng || !isHome) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   var str = req.get("Authorization");
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
@@ -345,6 +358,7 @@ const getSpForUser = async (req, res) => {
   console.log("getSpForUser");
   console.log(req.body);
   const spId = req.body.spTypeId;
+
   var str = req.get("Authorization");
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
@@ -400,6 +414,9 @@ const getSpPeoducts = async (req, res) => {
   console.log(req.body);
   var str = req.get("Authorization");
   const spID = req.body.spID;
+  if (!spID) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
       algorithm: "HS256",
@@ -421,6 +438,9 @@ const getSpPeoducts = async (req, res) => {
 const getProductInfo = async (req, res) => {
   console.log("getProductInfo");
   console.log(req.body);
+  if (!pId) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   var str = req.get("Authorization");
   try {
     const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
@@ -937,8 +957,81 @@ const payFromBalance = async (req, res) => {
 const createSchaduleOrder = async (req, res) => {
   console.log("createSchaduleOrder");
   console.log(req.body);
+  if (!req.body.user_Phone || !req.body.sendDate || !req.body.sell_point_id || !req.body.products_id || !req.body.destination_long || !req.body.destination_lat || !req.body.origin_long || !req.body.origin_lat || !req.body.fee || !req.body.payment || !req.body.paid || !req.body.distance) {
+    return res.status(400).json({ msg: "Validation failed" });
+  }
+
+  let reg = new RegExp(/([0-9]{4}-[0-9]{2}-[0-9]{2}T[01][0-9]{1}:[0-9]{2}:[0-9]{2}.000Z)+/)
+  // let validDate = reg.test(req.body.sendDate)
+  // if (!validDate) {
+  //   return res.status(400).json({ msg: "Date Validation failed" });
+  // }
   const sendDate = new Date(req.body.sendDate);
-  console.log(sendDate);
+  const tempDate =  new Date(req.body.sendDate);
+  tempDate.setMinutes(tempDate.getMinutes() - 1);
+  let newDate = tempDate
+  console.log({sendDate, newDate});
+  const number = req.body.user_Phone;
+  const phone = `966${number}`;
+  console.log(phone);
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  const data = JSON.stringify({
+    userName: process.env.SMS_USER_NAME,
+    numbers: phone,
+    userSender: "jetek",
+    apiKey: process.env.SMS_API_KEY,
+    msg: `هلا من جيتك نحب نذكرك انك عندك معنا طلب بعد ساعه `,
+  });
+
+  var REMINDERS = [];
+  REMINDERS.push(schedule.scheduleJob(sendDate, function(){
+    console.log('last one '+new Date().toString());
+    io.getIO().of("/captins").emit("newrequsetdriver", {
+      user_Phone: req.body.user_Phone,
+      sell_point_id: req.body.sell_point_id,
+      products_id: req.body.products_id,
+      destination_long: req.body.destination_long,
+      destination_lat: req.body.destination_lat,
+      origin_long: req.body.origin_long,
+      origin_lat: req.body.origin_lat,
+      fee: req.body.fee,
+      payment: req.body.payment,
+      paid: req.body.paid,
+      distance: req.body.distance,
+    });
+  }));
+  console.log("newDate"+newDate);
+  REMINDERS.push(schedule.scheduleJob(newDate, function(){
+    console.log('first one '+new Date().toString());
+    const request = httpRequest.request(
+      "https://www.msegat.com/gw/sendsms.php",
+      options,
+      (response) => {
+        console.log("Status", response.statusCode);
+        console.log("Headers", response.headers);
+        let responseData = "";
+       
+        response.on("data", (dataChunk) => {
+          responseData += dataChunk;
+        });
+        response.on("end", () => {
+          console.log("Response: ", responseData);
+        });
+      }
+    );
+
+    request.on("error", (error) => console.log("ERROR", error));
+
+    request.write(data);
+    request.end();
+  }));
+  
   const order = await new Order({
     user_Phone: req.body.user_Phone,
     sell_point_id: req.body.sell_point_id,
@@ -951,30 +1044,27 @@ const createSchaduleOrder = async (req, res) => {
     payment: req.body.payment,
     paid: req.body.paid,
     distance: req.body.distance,
-  })
-    .save()
+    status:0
+  }).save()
     .then((result) => {
-      var REMINDERS = [];
-      REMINDERS.push(schedule.scheduleJob(sendDate, function(){
-        console.log('sendDate '+new Date().toString());
-      }));
-      const date2 =  new Date(sendDate.setMinutes(sendDate.getMinutes()-1));
-      REMINDERS.push(schedule.scheduleJob(date2, function(){
-        console.log('befor sendDate'+new Date().toString());
-      }));
+     
+      
       console.log("Order created ");
       return res.status(200).json({ msg: "done" })
-     
+
     })
 }
 
-const useaCoupon = async (req,res)=>{
+const useaCoupon = async (req, res) => {
   console.log("useaCoupon");
   console.log(req.body);
-  const {couponText}= req.body ; 
+  const { couponText } = req.body;
+  if (!couponText) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   var str = req.get("Authorization");
   if (!str) {
-    res.status(401).json({ msg: "no token provided Token" });
+    return res.status(401).json({ msg: "no token provided Token" });
   }
   const payload = jwt.verify(str, process.env.ACCESS_TOKEN_SECRET, {
     algorithm: "HS256",
@@ -985,15 +1075,16 @@ const useaCoupon = async (req,res)=>{
     return res.status(400).json({ msg: "you can't access " });
   }
   console.log(getUser.phone);
-  const getCoupon = await Coupons.findOne({ coponeText :couponText });
+  const getCoupon = await Coupons.findOne({ coponeText: couponText });
   if (!getCoupon) {
     return res.status(400).json({ msg: "Coupon not found" });
   }
 
   const getIfUserUseCoupon = await usedCoupons.findOne({
-    useId:getUser._id,
+    useId: getUser._id,
     couponId: getCoupon._id,
   });
+
   if (getIfUserUseCoupon) {
     return res.status(400).json({ msg: "Sorry you used this coupon " });
   }
@@ -1016,14 +1107,16 @@ const useaCoupon = async (req,res)=>{
 }
 
 
-const serachForaProduct = async (req,res)=>{
+const serachForaProduct = async (req, res) => {
   console.log("serachForaProduct");
   console.log(req.body);
 
   var str = req.get("Authorization");
 
   const key = req.body.key;
-
+  if (!req.body.key) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
   if (!str) {
     res.status(401).json({ msg: "no token provided Token" });
   }
@@ -1037,16 +1130,16 @@ const serachForaProduct = async (req,res)=>{
   }
   console.log(getUser.phone);
 
-  const getProduct  = await Prouduct.find({ name:  new RegExp(key , 'i') });
+  const getProduct = await Prouduct.find({ name: new RegExp(key, 'i') });
   if (!getProduct) {
     return res.status(400).json({ msg: "لم يتم العثور على المنتج " });
-  }else{
+  } else {
     return res.status(200).json(getProduct);
 
   }
 }
 
-const serachForaPointOfSell = async (req,res)=>{
+const serachForaPointOfSell = async (req, res) => {
   console.log("serachForaPointOfSell");
   console.log(req.body);
 
@@ -1054,6 +1147,10 @@ const serachForaPointOfSell = async (req,res)=>{
 
   const key = req.body.key;
 
+  if (!req.body.key) {
+    return res.status(403).json({ msg: "Validation failed" });
+  }
+
   if (!str) {
     res.status(401).json({ msg: "no token provided Token" });
   }
@@ -1067,10 +1164,10 @@ const serachForaPointOfSell = async (req,res)=>{
   }
   console.log(getUser.phone);
 
-  const getSp  = await SpAdmin.find({ cpName:  new RegExp(key , 'i') });
+  const getSp = await SpAdmin.find({ cpName: new RegExp(key, 'i') });
   if (!getSp) {
     return res.status(400).json({ msg: "لم يتم العثور على نقطة البيع  " });
-  }else{
+  } else {
     return res.status(200).json(getSp);
 
   }
