@@ -153,6 +153,7 @@ io.of("/users").on("connection", async (socket) => {
         payment: data.payment,
         paid: data.paid,
         distance: data.distance,
+        DeliveryFee: data.DeliveryFee,
       })
         .save()
         .then((result) => {

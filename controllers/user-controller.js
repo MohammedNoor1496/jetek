@@ -957,7 +957,7 @@ const payFromBalance = async (req, res) => {
 const createSchaduleOrder = async (req, res) => {
   console.log("createSchaduleOrder");
   console.log(req.body);
-  if (!req.body.user_Phone || !req.body.sendDate || !req.body.sell_point_id || !req.body.products_id || !req.body.destination_long || !req.body.destination_lat || !req.body.origin_long || !req.body.origin_lat || !req.body.fee  || !req.body.paid || !req.body.distance) {
+  if (!req.body.user_Phone || !req.body.sendDate || !req.body.sell_point_id || !req.body.products_id || !req.body.destination_long || !req.body.destination_lat || !req.body.origin_long || !req.body.origin_lat || !req.body.fee  || !req.body.paid || !req.body.distance || !req.body.DeliveryFee) {
     return res.status(400).json({ msg: "Validation failed" });
   }
 
@@ -1004,6 +1004,7 @@ const createSchaduleOrder = async (req, res) => {
       payment: req.body.payment,
       paid: req.body.paid,
       distance: req.body.distance,
+      DeliveryFee: req.body.DeliveryFee,
     });
   }));
   console.log("newDate"+newDate);

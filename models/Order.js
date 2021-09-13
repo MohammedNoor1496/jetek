@@ -54,6 +54,10 @@ const order = new Schema({
     ,distance:{
         type: Number,
         require: true
+    },
+    DeliveryFee:{
+        type: Number,
+        require: true
     }
 
 }, { timestamps: true });
