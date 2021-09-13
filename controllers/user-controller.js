@@ -35,9 +35,7 @@ const userLogin = async (req, res) => {
 const verifyPhoneNumber = async (req, res) => {
   console.log("verifyPhoneNumber");
   console.log(req.body);
-  if (!req.body.number || !req.body.newuser) {
-    return res.status(403).json({ msg: "Validation failed" });
-  }
+  
   if (req.body.newuser == true) {
     const user = await User.findOne({ phone: req.body.number });
     if (user) return res.status(400).json({ msg: "user already exists " });
@@ -77,8 +75,7 @@ const verifyPhoneNumber = async (req, res) => {
 
         const request = httpRequest.request(
           "https://www.msegat.com/gw/sendsms.php",
-          options,
-          (response) => {
+          options,response=>{
             console.log("Status", response.statusCode);
             console.log("Headers", response.headers);
             let responseData = "";
@@ -483,12 +480,13 @@ const getOldUserOrders = async (req, res) => {
   }
   console.log(getUser.phone);
   // console.log(getUser);
+  var mysort = { createdAt: -1 };
 
   const orders = await Order.find({ user_Phone: getUser.phone }).populate(
     "sell_point_id"
   ).populate(
     '[products_id]'
-  ).limit(10)
+  ).limit(10).sort(mysort)
   // console.log(orders);
   if (orders.length == 0) {
     return res.status(404).json({ msg: "you don't have any old orders" });
