@@ -30,6 +30,7 @@ const Session = require("./models/sessions");
 const Message = require("./models/Messages");
 const Coupons = require("./models/Coupons");
 
+
 // REAL TIME PART
 io.on("connection", (socket) => {
   // console.log(socket.handshake.query['userId']);
@@ -306,13 +307,12 @@ app.use("/cpAdmin", subAdminRoutes);
 app.use("/test", async (req, res) => {
   console.log(req.body);
   try {
-    const useCoupon = await new Coupons({
-      coponeText:req.body.coponeText,
-      disPrecintege: req.body.disPrecintege,
-    })
-      .save()
+    const insert = await new SocialDevBankSupportUser({
+      userID:req.body.userID,
+      type: req.body.type,
+    }).save()
       .then(() => {
-        console.log(`coupon`);
+        console.log(`SocialDevBankSupportUser`);
         return res.status(200).json("done")
       });
   } catch (error) {

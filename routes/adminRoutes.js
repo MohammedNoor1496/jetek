@@ -56,5 +56,9 @@ router.post('/getCaptinInfo', adminController.getCaptinInfo)
 router.post('/getUserInfo', adminController.getUserInfo)
 router.post('/updateCaptinBalance', adminController.updateCaptinBalance)
 router.post('/updatePrices', adminController.updatePrices)
+router.post('/getAllOrders', adminController.getAllOrders)
+router.post('/getOnGoingOrders', adminController.getOnGoingOrders)
+router.post('/getCompletedOrders', adminController.getCompletedOrders)
+router.post('/getCanceledOrders', adminController.getCanceledOrders)
 
 module.exports = router;

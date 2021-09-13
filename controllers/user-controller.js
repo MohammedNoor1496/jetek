@@ -154,7 +154,7 @@ const createUser = async (req, res) => {
 const confirmUser = async (req, res) => {
   console.log("confirmUser");
   console.log(req.body);
-  if (!number || !otp) {
+  if (!req.body.number || !req.body.otp) {
     return res.status(403).json({ msg: "Validation failed" });
   }
   try {
@@ -438,7 +438,7 @@ const getSpPeoducts = async (req, res) => {
 const getProductInfo = async (req, res) => {
   console.log("getProductInfo");
   console.log(req.body);
-  if (!pId) {
+  if (!req.body.pId) {
     return res.status(403).json({ msg: "Validation failed" });
   }
   var str = req.get("Authorization");
@@ -957,7 +957,7 @@ const payFromBalance = async (req, res) => {
 const createSchaduleOrder = async (req, res) => {
   console.log("createSchaduleOrder");
   console.log(req.body);
-  if (!req.body.user_Phone || !req.body.sendDate || !req.body.sell_point_id || !req.body.products_id || !req.body.destination_long || !req.body.destination_lat || !req.body.origin_long || !req.body.origin_lat || !req.body.fee || !req.body.payment || !req.body.paid || !req.body.distance) {
+  if (!req.body.user_Phone || !req.body.sendDate || !req.body.sell_point_id || !req.body.products_id || !req.body.destination_long || !req.body.destination_lat || !req.body.origin_long || !req.body.origin_lat || !req.body.fee  || !req.body.paid || !req.body.distance) {
     return res.status(400).json({ msg: "Validation failed" });
   }
 

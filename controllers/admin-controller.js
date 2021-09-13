@@ -443,6 +443,56 @@ const updatePrices = async (req, res) => {
   }
  
 }
+
+const getAllOrders = async (req,res)=>{
+  console.log("getAllOrders");
+  console.log(req.body);
+  try {
+    const allOrders = await Order.find();
+    res.status(200).json(allOrders);
+    // console.log(allUsers);
+  } catch (e) {
+    res.status(400).send({ status: false });
+  }
+
+}
+
+const getOnGoingOrders = async (req, res )=>{
+  console.log("getOnGoingOrders");
+  console.log(req.body);
+  try {
+    const allOrders = await Order.find({status:{$nin: ["0","6"]}});
+    res.status(200).json(allOrders);
+    // console.log(allUsers);
+  } catch (e) {
+    res.status(400).send({ status: false });
+  }
+}
+
+const getCompletedOrders = async (req,res)=>{
+  console.log("getCompletedOrders");
+  console.log(req.body);
+  try {
+    const allOrders = await Order.find({status:6});
+    res.status(200).json(allOrders);
+    // console.log(allUsers);
+  } catch (e) {
+    res.status(400).send({ status: false });
+  }
+}
+
+const getCanceledOrders = async (req,res)=>{
+  console.log("getCompletedOrders");
+  console.log(req.body);
+  try {
+    const allOrders = await Order.find({status:0});
+    res.status(200).json(allOrders);
+    // console.log(allUsers);
+  } catch (e) {
+    res.status(400).send({ status: false });
+  }
+}
+
 module.exports = {
   createAdmin,
   getAllAdmins,
@@ -468,4 +518,8 @@ module.exports = {
   getUserInfo,
   updateCaptinBalance,
   updatePrices,
+  getAllOrders,
+  getOnGoingOrders,
+  getCompletedOrders,
+  getCanceledOrders
 };
